@@ -361,7 +361,11 @@ body{font-family:'Inter',sans-serif;background:var(--pk);color:var(--tx);overflo
 .spec-row-fk:nth-child(even){background:var(--pk)}
 .spec-key{padding:12px 16px;font-size:.8rem;color:var(--mu);font-weight:600;border-right:1px solid var(--brd)}
 .spec-val{padding:12px 16px;font-size:.82rem;color:var(--tx);font-weight:500}
-@media(max-width:960px){.detail-wrap{grid-template-columns:1fr}.detail-img-panel{position:relative;top:0;height:70vw;max-height:440px}.dthumb-strip{width:76px}.action-btns{flex-direction:column}}</style>
+@media(max-width:960px){.detail-wrap{grid-template-columns:1fr}.detail-img-panel{position:relative;top:0;height:70vw;max-height:440px}.dthumb-strip{width:76px}.action-btns{flex-direction:column}}
+/* ── POPUP CLOSE BUTTON ── */
+.popup-close{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;color:var(--mu);font-size:1rem;line-height:1;padding:4px;border-radius:50%;transition:all .2s;display:flex;align-items:center;justify-content:center;width:24px;height:24px}
+.popup-close:hover{background:var(--pk2);color:var(--tx)}
+.wa-popup,.ig-popup-inner{position:relative}</style>
 </head>
 <body>
 <!-- LOADER -->
@@ -719,7 +723,7 @@ body{font-family:'Inter',sans-serif;background:var(--pk);color:var(--tx);overflo
 
 <!-- INSTAGRAM FAB -->
 <div id="ig">
-  <div id="ig-popup">
+  <div id="ig-popup" class="ig-popup-inner"><button class="popup-close" onclick="toggleIG()" aria-label="Close">&times;</button>
     <div style="font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;margin-bottom:.4rem;background:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">&#x1F4F8; OXFOX Studio</div>
     <div style="font-size:.82rem;line-height:1.6;color:var(--mu);font-family:'Inter',sans-serif;">See our latest moulds, client work &amp; behind the scenes.</div>
     <a href="https://www.instagram.com/oxfoxmolds/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.75rem;background:linear-gradient(90deg,#833ab4,#fd1d1d,#fcb045);color:#fff;padding:7px 16px;border-radius:4px;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;">Follow on Instagram &rarr;</a>
@@ -731,7 +735,7 @@ body{font-family:'Inter',sans-serif;background:var(--pk);color:var(--tx);overflo
 
 <!-- WHATSAPP -->
 <div id="wa">
-  <div class="wa-popup" id="wa-popup">
+  <div class="wa-popup" id="wa-popup"><button class="popup-close" onclick="toggleWA()" aria-label="Close">&times;</button>
     <div class="wa-popup-top">&#x1F44B; OXFOX Studio</div>
     <div class="wa-popup-msg">Hello! Any questions? We're happy to help you find the perfect mould.</div>
     <a class="wa-popup-btn" href="https://wa.me/c/917395906336" target="_blank" rel="noopener">Chat on WhatsApp &rarr;</a>
