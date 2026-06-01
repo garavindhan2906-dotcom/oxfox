@@ -1062,7 +1062,7 @@ function switchImg(thumb){
   document.querySelectorAll('.dthumb').forEach(t=>t.classList.remove('active'));
   thumb.classList.add('active');
 }function toggleWA(){waOpen=!waOpen;document.getElementById('wa-popup').classList.toggle('open',waOpen);}
-function goInsta(){window.open('https://www.instagram.com/oxfoxmolds/','_blank','noopener,noreferrer')}
+function goInsta(){window.open('https://www.instagram.com/oxfoxmolds/','_blank')}
 function toast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
