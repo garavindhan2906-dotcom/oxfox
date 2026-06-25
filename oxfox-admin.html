@@ -545,6 +545,34 @@ const CATS = {
   decor:      {name:'Decor',             icon:'🏠'},
 };
 
+/* ══ ADMIN API ══ */
+const ADMIN_API = (location.hostname==='localhost'||location.hostname==='127.0.0.1')
+  ? 'http://localhost:8000/api' : '/api';
+let _apiToken = localStorage.getItem('oxfox_api_token');
+let _apiCats = [];
+
+async function ensureAdminToken(){
+  if(_apiToken) return _apiToken;
+  try{
+    const r = await fetch(ADMIN_API+'/auth/login/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'oxfoxadmin',password:'OxfoxAdmin@2026'})});
+    if(!r.ok){aToast('API auth failed');return null;}
+    const d=await r.json();
+    _apiToken=d.access;
+    localStorage.setItem('oxfox_api_token',_apiToken);
+    return _apiToken;
+  }catch(e){aToast('API connection error');return null;}
+}
+
+async function loadApiCategories(){
+  if(_apiCats.length) return _apiCats;
+  try{
+    const r=await fetch(ADMIN_API+'/products/categories/');
+    const d=await r.json();
+    _apiCats=(d.results||d).map(c=>({id:c.id,key:c.key,name:c.name,icon:c.icon||'📦'}));
+  }catch(e){_apiCats=[];}
+  return _apiCats;
+}
+
 /* ══ AUTH ══ */
 const ADMIN_PHONE = '7395906336';
 const DEMO_OTP    = '1234';
@@ -838,21 +866,38 @@ function getProductOverrides(){try{return JSON.parse(localStorage.getItem('oxfox
 
 function populateCatFilters(){
   const sel=document.getElementById('prod-filter-cat');
-  Object.entries(CATS).forEach(([k,v])=>{
-    const o=document.createElement('option');o.value=k;o.textContent=v.icon+' '+v.name;sel.appendChild(o);
+  sel.innerHTML='<option value="">All Categories</option>';
+  const cats=_apiCats.length?_apiCats:Object.entries(CATS).map(([k,v])=>({key:k,name:v.name,icon:v.icon}));
+  cats.forEach(c=>{
+    const o=document.createElement('option');o.value=c.key;o.textContent=c.icon+' '+c.name;sel.appendChild(o);
   });
 }
 
-function renderProducts(){
-  buildAllProducts();
+async function renderProducts(){
+  document.getElementById('prod-count-lbl').textContent='Loading…';
+  await loadApiCategories();
+  populateCatFilters();
+  try{
+    let page1=await fetch(ADMIN_API+'/products/?page_size=200');
+    const d=await page1.json();
+    const prods=d.results||d;
+    allProducts=prods.map(p=>({
+      id:p.product_id,_dbId:p.id,
+      n:p.name,e:p.emoji||'📦',
+      p:p.price,m:p.mrp,
+      catKey:p.category_key,cat:p.category_name,
+      img:p.primary_image,desc:p.description,
+      b:p.badge,mat:p.material,f:p.filter_tag,
+      isCustom:p.is_custom
+    }));
+    const cust=allProducts.filter(x=>x.isCustom).length;
+    document.getElementById('prod-count-lbl').textContent=allProducts.length+' products in database · '+cust+' custom';
+  }catch(e){
+    buildAllProducts();
+    document.getElementById('prod-count-lbl').textContent=allProducts.length+' products (local cache)';
+  }
   const deleted=getDeletedP();
-  const snap=getProductsSnapshot();
-  const builtIn=allProducts.filter(p=>!p.isCustom).length;
-  const cust=allProducts.filter(p=>p.isCustom).length;
-  document.getElementById('prod-count-lbl').textContent=snap.length
-    ?(allProducts.length+' products · '+builtIn+' built-in · '+cust+' custom · '+deleted.length+' hidden')
-    :(cust+' custom · '+deleted.length+' hidden — open the store in another tab first to sync all products');
-  renderProductTable(allProducts);
+  renderProductTable(allProducts.filter(p=>!deleted.includes(p.id)));
 }
 
 function renderProductTable(list){
@@ -860,7 +905,7 @@ function renderProductTable(list){
     <tr>
       <td><div class="prod-table-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" onerror="this.parentElement.textContent='${p.e||'📦'}'">`:p.e||'📦'}</div></td>
       <td><strong style="font-size:.9rem">${p.n}</strong> <span class="badge ${p.isCustom?'blue':'green'}" style="font-size:.5rem;vertical-align:middle;padding:2px 6px">${p.isCustom?'Custom':'Built-in'}</span><br><span style="font-size:.65rem;color:var(--mu2)">${p.id}</span></td>
-      <td>${CATS[p.catKey]?CATS[p.catKey].icon+' '+CATS[p.catKey].name:p.catKey}</td>
+      <td>${(()=>{const ac=_apiCats.find(c=>c.key===p.catKey);return ac?ac.icon+' '+ac.name:(CATS[p.catKey]?CATS[p.catKey].icon+' '+CATS[p.catKey].name:p.cat||p.catKey);})()}</td>
       <td>${p.mat||'Silicone'}</td>
       <td>₹${(p.p||0).toLocaleString('en-IN')}${p.m&&p.m!==p.p?`<br><span style="font-size:.65rem;color:var(--mu2);text-decoration:line-through">₹${p.m.toLocaleString('en-IN')}</span>`:''}
       </td>
@@ -889,10 +934,17 @@ function filterProductTable(q){
   renderProductTable(list);
 }
 
-function toggleAddForm(){
+async function toggleAddForm(){
   const f=document.getElementById('add-product-form');
   f.classList.toggle('open');
-  if(f.classList.contains('open'))f.scrollIntoView({behavior:'smooth',block:'start'});
+  if(f.classList.contains('open')){
+    f.scrollIntoView({behavior:'smooth',block:'start'});
+    await loadApiCategories();
+    if(_apiCats.length){
+      const sel=document.getElementById('ap-cat');
+      sel.innerHTML=_apiCats.map(c=>`<option value="${c.key}">${c.icon} ${c.name}</option>`).join('');
+    }
+  }
 }
 
 /* ─ IMAGE FILE PICKER ─ */
@@ -950,44 +1002,41 @@ function renderProdTierEditor(containerId,tiers){
   });
 }
 
-function saveNewProduct(){
+async function saveNewProduct(){
   const name=document.getElementById('ap-name').value.trim();
-  const cat=document.getElementById('ap-cat').value;
+  const catKey=document.getElementById('ap-cat').value;
   const mat=document.getElementById('ap-mat').value.trim()||'Silicone';
   const filter=document.getElementById('ap-filter').value.trim()||'All';
   const price=parseInt(document.getElementById('ap-price').value)||0;
   const mrp=parseInt(document.getElementById('ap-mrp').value)||0;
-  const badge=document.getElementById('ap-badge').value||null;
+  const badge=document.getElementById('ap-badge').value||'';
   const emoji=document.getElementById('ap-emoji').value||'📦';
-  const tiers=collectProdTiers('ap-prod-tiers');
   const imgs=[];
   for(let i=1;i<=6;i++){const v=document.getElementById('ap-img'+i).value.trim();if(v)imgs.push(v);}
-  const img=imgs[0]||'';
   const desc=document.getElementById('ap-desc').value.trim();
   if(!name){aToast('Product Name is required');return;}
-  if(!price||!mrp){aToast('Price and MRP are required (must be greater than 0)');return;}
+  if(!price||!mrp){aToast('Price and MRP required (must be > 0)');return;}
   if(!desc){aToast('Description is required');return;}
-  const custom=getAdminP();
-  if(!custom[cat])custom[cat]=[];
-  const id='adm-'+Date.now();
-  const prod={id,n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
-  if(imgs.length>1)prod.imgs=imgs;
-  custom[cat].push(prod);
+
+  const catObj=_apiCats.find(c=>c.key===catKey);
+  if(!catObj){aToast('Category not found — refresh the page and try again');return;}
+  const token=await ensureAdminToken();
+  if(!token)return;
+
+  const payload={product_id:'adm-'+Date.now(),category:catObj.id,name,emoji,price,mrp,material:mat,badge,filter_tag:filter,description:desc,discount:0,is_active:true,is_custom:true,images:imgs};
   try{
-    localStorage.setItem('oxfox_admin_products',JSON.stringify(custom));
-  }catch(err){
-    aToast('Save failed: storage full. Use smaller images or clear browser data.');
-    return;
-  }
-  if(tiers.length){try{const pd=getProductDiscounts();pd[id]=tiers;localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));}catch(e){}}
-  aToast('Product "'+name+'" added successfully!');
-  toggleAddForm();
-  ['ap-name','ap-filter','ap-price','ap-mrp','ap-desc'].forEach(fid=>{document.getElementById(fid).value='';});
-  document.getElementById('ap-prod-tiers').innerHTML='';
-  for(let i=1;i<=6;i++){document.getElementById('ap-img'+i).value='';const t=document.getElementById('ap-thumb'+i);if(t){t.src='';t.style.display='none';}}
-  document.getElementById('ap-badge').value='';
-  document.getElementById('ap-emoji').value='🛍️';
-  renderProducts();
+    const r=await fetch(ADMIN_API+'/products/',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)});
+    if(r.status===401){localStorage.removeItem('oxfox_api_token');_apiToken=null;aToast('Session expired — try again');return;}
+    if(!r.ok){const e=await r.json();aToast('Error: '+JSON.stringify(e).slice(0,120));return;}
+    aToast('Product "'+name+'" saved to database!');
+    toggleAddForm();
+    ['ap-name','ap-filter','ap-price','ap-mrp','ap-desc'].forEach(fid=>{document.getElementById(fid).value='';});
+    document.getElementById('ap-prod-tiers').innerHTML='';
+    for(let i=1;i<=6;i++){document.getElementById('ap-img'+i).value='';const t=document.getElementById('ap-thumb'+i);if(t){t.src='';t.style.display='none';}}
+    document.getElementById('ap-badge').value='';
+    document.getElementById('ap-emoji').value='🛍️';
+    renderProducts();
+  }catch(e){aToast('Network error: '+e.message);}
 }
 
 /* ─ EDIT ─ */
