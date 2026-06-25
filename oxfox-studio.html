@@ -853,7 +853,7 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
     <div class="reveal"><div class="sec-eyebrow">Mold Categories</div></div>
     <div class="reveal" style="transition-delay:.1s"><h2 class="sec-title">Mold Anything.<br>Ship Everywhere.</h2></div>
     <p class="sec-sub reveal" style="transition-delay:.15s">Nine themed categories. All silicone. One brand that does it all.</p>
-    <div class="cat-grid reveal" style="transition-delay:.2s">
+    <div class="cat-grid reveal" id="main-cat-grid" style="transition-delay:.2s">
       <div class="cat-card" onclick="showCat('women')">
         <div class="cc-img-wrap">
           <div class="cc-img-ph">&#x1F469;</div>
@@ -1278,12 +1278,26 @@ function apiTrack(event, extra = {}) {
 
 /* Load products from API (falls back to built-in D object if API unavailable) */
 async function loadApiProducts() {
+  // Fetch categories first so new ones (from admin) get added to D
+  const catData = await apiFetch('/products/categories/');
+  if (catData && catData.results) {
+    catData.results.forEach(cat => {
+      if (!D[cat.key]) {
+        D[cat.key] = {
+          name: cat.name, icon: cat.icon || '📦', imgs: [],
+          desc: cat.description || '',
+          filters: Array.isArray(cat.filters) && cat.filters.length ? cat.filters : ['All'],
+          products: []
+        };
+      }
+    });
+  }
   const data = await apiFetch('/products/?page_size=200');
   if (!data || !data.results) return;
   data.results.forEach(p => {
     const key = p.category_key;
     if (!D[key]) return;
-    const exists = D[key].products.find(x => x.product_id === p.product_id || x.id === p.id);
+    const exists = D[key].products.find(x => x.id === p.product_id);
     if (exists) return;
     D[key].products.push({
       id: p.product_id, n: p.name, e: p.emoji, p: p.price, m: p.mrp,
@@ -1292,6 +1306,21 @@ async function loadApiProducts() {
       desc: p.description, discount: p.discount || 0,
     });
   });
+  // Re-render category grid from D (shows both built-in and API categories)
+  const catGrid = document.getElementById('main-cat-grid');
+  if (catGrid) {
+    catGrid.innerHTML = Object.keys(D)
+      .filter(k => D[k].products.length > 0)
+      .map(k => '<div class="cat-card" onclick="showCat(\''+k+'\')">'
+        +'<div class="cc-img-wrap"><div class="cc-img-ph">'+D[k].icon+'</div></div>'
+        +'<div class="cc-name">'+D[k].name+'</div>'
+        +'<p class="cc-desc">'+D[k].desc+'</p>'
+        +'<div class="cc-divider"></div>'
+        +'<div class="cc-count">'+D[k].products.length+' Designs <span class="cc-arr">&rarr;</span></div>'
+        +'</div>').join('');
+  }
+  // Refresh featured picks to include any new API categories
+  if (document.querySelector('[data-page="home"].active')) renderFeatured();
 }
 
 async function loadApiProductDiscounts() {
@@ -1748,13 +1777,11 @@ function renderCatGrid(key,f){
   };
 }
 function renderFeatured(){
-  const picks=[
-    {p:D.women.products[0],k:'women'},
-    {p:D.men.products[0],k:'men'},
-    {p:D.animals.products[0],k:'animals'},
-    {p:D.rakhi.products[0],k:'rakhi'},
-    {p:D.diwali.products[0],k:'diwali'},
-  ].filter(x=>x.p);
+  const picks=Object.keys(D)
+    .filter(k=>D[k].products.length>0)
+    .slice(0,5)
+    .map(k=>({p:D[k].products[0],k}))
+    .filter(x=>x.p);
   const grid=document.getElementById('feat-grid');
   grid.innerHTML=picks.map(x=>cardHTML(x.p,x.k)).join('');
   grid.onclick=e=>{
