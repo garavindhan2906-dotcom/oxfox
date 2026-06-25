@@ -1027,7 +1027,7 @@ async function saveNewProduct(){
   try{
     const r=await fetch(ADMIN_API+'/products/',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)});
     if(r.status===401){localStorage.removeItem('oxfox_api_token');_apiToken=null;aToast('Session expired — try again');return;}
-    if(!r.ok){const e=await r.json();aToast('Error: '+JSON.stringify(e).slice(0,120));return;}
+    if(!r.ok){let msg='Server error '+r.status;try{const e=await r.json();msg=JSON.stringify(e).slice(0,150);}catch{}aToast(msg);return;}
     aToast('Product "'+name+'" saved to database!');
     toggleAddForm();
     ['ap-name','ap-filter','ap-price','ap-mrp','ap-desc'].forEach(fid=>{document.getElementById(fid).value='';});
