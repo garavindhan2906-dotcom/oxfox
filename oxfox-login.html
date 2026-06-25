@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Login / Sign Up — Oxfox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pk:#0C1A18;--pk2:#122320;--pk3:#182E2A;--pk4:#1E3935;
+  --mr:#C8A46A;--mr2:#A87A3C;--mr3:#1F3A36;
+  --tx:#F5F1E8;--mu:#A09080;--mu2:#706560;
+  --wh:#FFFFFF;--offwh:#F5F1E8;
+  --brd:rgba(200,164,106,.2);--brd2:rgba(200,164,106,.4);
+  --gold:#C8A46A;
+  --ease:cubic-bezier(.16,1,.3,1);--r:8px;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--pk);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--pk2)}
+::-webkit-scrollbar-thumb{background:var(--mr);border-radius:2px}
+
+/* ── NAV ── */
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--pk2);border-bottom:1px solid var(--brd);padding:0 3rem;height:72px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:1px;cursor:pointer;text-decoration:none}
+.nav-logo-text{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--mr);letter-spacing:.05em}
+.nav-tagline{font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);font-weight:500}
+.nav-back{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;display:flex;align-items:center;gap:.5rem;transition:color .25s;text-decoration:none}
+.nav-back:hover{color:var(--mr)}
+
+/* ── MAIN LAYOUT ── */
+.auth-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:100px 1.5rem 3rem;background:radial-gradient(ellipse at 50% 30%,var(--mr3) 0%,var(--pk) 65%)}
+.auth-card{background:var(--pk3);border:1.5px solid var(--brd);border-radius:20px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(200,164,106,.12),0 4px 20px rgba(200,164,106,.06);overflow:hidden}
+
+/* ── CARD HEADER ── */
+.auth-header{background:var(--mr3);padding:2.5rem 2.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+.auth-header::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04)}
+.auth-header::after{content:'';position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.03)}
+.auth-brand{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--wh);letter-spacing:.06em;position:relative;z-index:1}
+.auth-brand-sub{font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:.25rem;position:relative;z-index:1}
+.auth-tagline{font-size:.8rem;color:rgba(255,255,255,.6);margin-top:.75rem;line-height:1.6;position:relative;z-index:1}
+
+/* ── TABS ── */
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid var(--brd)}
+.tab-btn{padding:1rem;font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;background:none;border:none;cursor:pointer;color:var(--mu);transition:all .3s;position:relative}
+.tab-btn.active{color:var(--mr);background:var(--pk4)}
+.tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:var(--mr)}
+.tab-btn:hover:not(.active){background:var(--pk3);color:var(--tx)}
+
+/* ── FORMS ── */
+.auth-body{padding:2rem 2.5rem 2.5rem}
+.form-panel{display:none}
+.form-panel.active{display:block}
+
+.form-group{margin-bottom:1.25rem}
+.f-label{display:block;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--mu);font-weight:700;margin-bottom:.5rem}
+.f-input{width:100%;background:var(--pk4);border:1.5px solid var(--brd);color:var(--tx);padding:13px 16px;border-radius:var(--r);font-size:.9rem;font-family:'Inter',sans-serif;transition:border-color .3s,box-shadow .3s;outline:none}
+.f-input:focus{border-color:var(--mr);box-shadow:0 0 0 3px rgba(200,164,106,.12);background:var(--pk3)}
+.f-input::placeholder{color:var(--mu2)}
+.f-input.error{border-color:#c0392b;box-shadow:0 0 0 3px rgba(192,57,43,.1)}
+
+/* password wrapper */
+.pw-wrap{position:relative}
+.pw-wrap .f-input{padding-right:48px}
+.pw-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mu);padding:4px;display:flex;align-items:center;transition:color .25s}
+.pw-toggle:hover{color:var(--mr)}
+
+/* inline row */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+
+/* strength bar */
+.strength-wrap{margin-top:.5rem;display:none}
+.strength-wrap.show{display:block}
+.strength-track{height:4px;background:var(--pk3);border-radius:2px;overflow:hidden}
+.strength-fill{height:100%;width:0;transition:width .4s,background .4s;border-radius:2px}
+.strength-lbl{font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;margin-top:.3rem;font-weight:600}
+
+/* hints */
+.f-hint{font-size:.7rem;color:var(--mu);margin-top:.35rem;line-height:1.5}
+.f-error{font-size:.7rem;color:#c0392b;margin-top:.35rem;display:none}
+
+/* remember + forgot row */
+.form-extras{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.remember-wrap{display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.72rem;color:var(--mu)}
+.remember-wrap input{accent-color:var(--mr);width:14px;height:14px;cursor:pointer}
+.forgot-btn{background:none;border:none;cursor:pointer;font-size:.72rem;color:var(--mr);font-family:'Inter',sans-serif;font-weight:600;transition:opacity .25s;padding:0}
+.forgot-btn:hover{opacity:.7;text-decoration:underline}
+
+/* terms */
+.terms-wrap{display:flex;align-items:flex-start;gap:.6rem;margin-bottom:1.5rem}
+.terms-wrap input{accent-color:var(--mr);width:14px;height:14px;cursor:pointer;flex-shrink:0;margin-top:2px}
+.terms-wrap label{font-size:.72rem;color:var(--mu);line-height:1.55;cursor:pointer}
+.terms-wrap a{color:var(--mr);font-weight:600;text-decoration:none}
+.terms-wrap a:hover{text-decoration:underline}
+
+/* submit button */
+.btn-submit{width:100%;padding:15px;background:var(--mr);color:var(--wh);border:none;border-radius:var(--r);font-family:'Inter',sans-serif;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;cursor:pointer;transition:all .35s var(--ease);position:relative;overflow:hidden}
+.btn-submit::after{content:'';position:absolute;inset:0;background:linear-gradient(rgba(255,255,255,.1),transparent);opacity:0;transition:opacity .3s}
+.btn-submit:hover{background:var(--mr2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(200,164,106,.3)}
+.btn-submit:hover::after{opacity:1}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+
+/* divider */
+.auth-divider{display:flex;align-items:center;gap:.75rem;margin:1.5rem 0}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--brd)}
+.auth-divider span{font-size:.62rem;color:var(--mu2);text-transform:uppercase;letter-spacing:.15em;white-space:nowrap}
+
+/* whatsapp sign-in */
+.btn-wa{width:100%;padding:13px;background:transparent;color:#25D366;border:1.5px solid #25D366;border-radius:var(--r);font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:all .3s}
+.btn-wa:hover{background:#25D366;color:var(--wh)}
+
+/* switch prompt */
+.switch-prompt{text-align:center;margin-top:1.5rem;font-size:.75rem;color:var(--mu)}
+.switch-prompt button{background:none;border:none;color:var(--mr);font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;font-size:.75rem;transition:opacity .25s;padding:0}
+.switch-prompt button:hover{opacity:.7;text-decoration:underline}
+
+/* success state */
+.success-panel{display:none;text-align:center;padding:1.5rem 0}
+.success-panel.show{display:block}
+.success-icon{font-size:3rem;margin-bottom:1rem}
+.success-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
+.success-sub{font-size:.82rem;color:var(--mu);line-height:1.7;margin-bottom:1.5rem}
+.success-uid{display:inline-block;background:var(--pk);border:1.5px solid var(--brd);border-radius:8px;padding:.75rem 1.5rem;margin-bottom:1.5rem}
+.uid-label{font-size:.55rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mu);margin-bottom:.3rem}
+.uid-value{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--mr);letter-spacing:.08em}
+
+/* forgot password overlay */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(60,8,8,.55);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;visibility:hidden;transition:all .3s var(--ease)}
+.overlay.show{opacity:1;visibility:visible}
+.overlay-card{background:var(--pk3);border-radius:16px;padding:2.5rem;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(200,164,106,.2);transform:translateY(20px);transition:transform .35s var(--ease)}
+.overlay.show .overlay-card{transform:translateY(0)}
+.overlay-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
+.overlay-sub{font-size:.8rem;color:var(--mu);margin-bottom:1.5rem;line-height:1.6}
+.overlay-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mu);padding:4px;border-radius:50%;transition:all .2s}
+.overlay-close:hover{background:var(--pk2);color:var(--tx)}
+
+/* toast */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);z-index:9999;background:var(--mr);color:var(--wh);padding:12px 28px;border-radius:40px;font-size:.72rem;letter-spacing:.1em;white-space:nowrap;transition:transform .4s var(--ease),opacity .4s;opacity:0;pointer-events:none;font-weight:600}
+#toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+#toast.green{background:#27ae60}
+
+/* input icon prefix */
+.f-icon-wrap{position:relative}
+.f-icon-wrap .f-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mu2);pointer-events:none;display:flex}
+.f-icon-wrap .f-input{padding-left:44px}
+
+/* user info banner (after login) */
+.user-banner{background:var(--mr3);color:var(--wh);padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.user-banner-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:700}
+.user-banner-uid{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:.15rem}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--wh);padding:8px 18px;border-radius:6px;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;transition:all .3s}
+.btn-signout:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:560px){
+  #nav{padding:0 1.25rem}
+  .auth-body{padding:1.5rem 1.5rem 2rem}
+  .auth-header{padding:2rem 1.5rem 1.5rem}
+  .form-row{grid-template-columns:1fr}
+  .auth-card{border-radius:14px}
+}
+
+/* spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.4);border-top-color:var(--wh);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle;margin-right:.5rem}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo-wrap" href="oxfox-studio.html">
+    <span class="nav-logo-text">Oxfox</span>
+    <span class="nav-tagline">Premium Silicone Molds</span>
+  </a>
+  <a class="nav-back" href="oxfox-studio.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Back to Shop
+  </a>
+</nav>
+
+<!-- MAIN -->
+<div class="auth-wrapper">
+  <div class="auth-card" id="auth-card">
+
+    <!-- Card header -->
+    <div class="auth-header">
+      <div class="auth-brand">OXFOX</div>
+      <p class="auth-tagline">Sign in to track orders, save favourites,<br>and access exclusive member offers.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+      <button class="tab-btn active" id="tab-login" onclick="switchTab('login')">Sign In</button>
+      <button class="tab-btn" id="tab-register" onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- Body -->
+    <div class="auth-body">
+
+      <!-- ───── LOGIN PANEL ───── -->
+      <div class="form-panel active" id="panel-login">
+        <div class="success-panel" id="login-success">
+          <div class="success-icon">👋</div>
+          <div class="success-title">Welcome back!</div>
+          <p class="success-sub" id="login-welcome-msg">You are now signed in.</p>
+          <a href="oxfox-studio.html" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Go to Shop &rarr;</a>
+        </div>
+
+        <div id="login-form-inner">
+          <!-- Email / Phone -->
+          <div class="form-group">
+            <label class="f-label" for="l-email">Email Address or Phone</label>
+            <div class="f-icon-wrap">
+              <span class="f-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+              </span>
+              <input class="f-input" type="text" id="l-email" placeholder="you@example.com or +91 00000 00000" autocomplete="email">
+            </div>
+            <div class="f-error" id="l-email-err">Please enter a valid email or phone number.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="f-label" for="l-pass">Password</label>
+            <div class="pw-wrap">
+              <input class="f-input" type="password" id="l-pass" placeholder="Your password" autocomplete="current-password">
+              <button class="pw-toggle" type="button" onclick="togglePw('l-pass',this)" aria-label="Toggle password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-on"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="f-error" id="l-pass-err">Password is required.</div>
+          </div>
+
+          <!-- Remember + Forgot -->
+          <div class="form-extras">
+            <label class="remember-wrap">
+              <input type="checkbox" id="l-remember">
+              <span>Remember me</span>
+            </label>
+            <button class="forgot-btn" onclick="showForgot()">Forgot password?</button>
+          </div>
+
+          <button class="btn-submit" id="btn-login" onclick="doLogin()">Sign In</button>
+
+          <div class="auth-divider"><span>or continue with</span></div>
+
+          <button class="btn-wa" onclick="whatsappLogin()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Continue via WhatsApp
+          </button>
+
+          <div class="switch-prompt">
+            Don't have an account?
+            <button onclick="switchTab('register')">Create one now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ───── REGISTER PANEL ───── -->
+      <div class="form-panel" id="panel-register">
+        <div class="success-panel" id="register-success">
+          <div class="success-icon">🎉</div>
+          <div class="success-title">Account Created!</div>
+          <p class="success-sub">Welcome to Oxfox. Your User ID has been generated.</p>
+          <div class="success-uid">
+            <div class="uid-label">Your User ID</div>
+            <div class="uid-value" id="new-uid">OXF-000000</div>
+          </div>
+          <p style="font-size:.72rem;color:var(--mu);margin-bottom:1.5rem">Save this ID — you'll need it to track orders and access member benefits.</p>
+          <a href="oxfox-studio.html" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Start Shopping &rarr;</a>
+        </div>
+
+        <div id="register-form-inner">
+          <!-- Full name -->
+          <div class="form-row">
+            <div class="form-group">
+              <label class="f-label" for="r-fname">First Name *</label>
+              <input class="f-input" type="text" id="r-fname" placeholder="First name" autocomplete="given-name">
+              <div class="f-error" id="r-fname-err">First name is required.</div>
+            </div>
+            <div class="form-group">
+              <label class="f-label" for="r-lname">Last Name *</label>
+              <input class="f-input" type="text" id="r-lname" placeholder="Last name" autocomplete="family-name">
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="f-label" for="r-email">Email Address *</label>
+            <div class="f-icon-wrap">
+              <span class="f-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+              </span>
+              <input class="f-input" type="email" id="r-email" placeholder="you@example.com" autocomplete="email">
+            </div>
+            <div class="f-error" id="r-email-err">Please enter a valid email address.</div>
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="f-label" for="r-phone">Phone Number *</label>
+            <div class="f-icon-wrap">
+              <span class="f-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.62 10.5 19.79 19.79 0 01.55 2.18 2 2 0 012.52 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l.88-.88a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+              </span>
+              <input class="f-input" type="tel" id="r-phone" placeholder="+91 00000 00000" autocomplete="tel">
+            </div>
+            <div class="f-error" id="r-phone-err">Please enter a valid 10-digit phone number.</div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="f-label" for="r-pass">Password *</label>
+            <div class="pw-wrap">
+              <input class="f-input" type="password" id="r-pass" placeholder="Create a strong password" autocomplete="new-password" oninput="checkStrength(this.value)">
+              <button class="pw-toggle" type="button" onclick="togglePw('r-pass',this)" aria-label="Toggle password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-on"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="strength-wrap" id="strength-wrap">
+              <div class="strength-track"><div class="strength-fill" id="strength-fill"></div></div>
+              <div class="strength-lbl" id="strength-lbl"></div>
+            </div>
+            <div class="f-hint">Min. 8 characters, include numbers &amp; symbols for best security.</div>
+            <div class="f-error" id="r-pass-err">Password must be at least 8 characters.</div>
+          </div>
+
+          <!-- Confirm password -->
+          <div class="form-group">
+            <label class="f-label" for="r-pass2">Confirm Password *</label>
+            <div class="pw-wrap">
+              <input class="f-input" type="password" id="r-pass2" placeholder="Re-enter password" autocomplete="new-password">
+              <button class="pw-toggle" type="button" onclick="togglePw('r-pass2',this)" aria-label="Toggle password">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-on"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <div class="f-error" id="r-pass2-err">Passwords do not match.</div>
+          </div>
+
+          <!-- Terms -->
+          <div class="terms-wrap">
+            <input type="checkbox" id="r-terms">
+            <label for="r-terms">
+              I agree to the <a href="#" onclick="return false">Terms of Service</a> and <a href="#" onclick="return false">Privacy Policy</a> of Oxfox.
+            </label>
+          </div>
+
+          <button class="btn-submit" id="btn-register" onclick="doRegister()">Create My Account</button>
+
+          <div class="switch-prompt" style="margin-top:1.25rem">
+            Already have an account?
+            <button onclick="switchTab('login')">Sign in here</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD OVERLAY -->
+<div class="overlay" id="forgot-overlay" onclick="closeForgotOutside(event)">
+  <div class="overlay-card" style="position:relative">
+    <button class="overlay-close" onclick="closeForgot()">&#10005;</button>
+    <h2 class="overlay-title">Reset Password</h2>
+    <p class="overlay-sub">Enter your registered email address. We'll send a reset link via WhatsApp or email.</p>
+
+    <div id="forgot-form">
+      <div class="form-group">
+        <label class="f-label" for="fp-email">Email Address</label>
+        <input class="f-input" type="email" id="fp-email" placeholder="you@example.com">
+      </div>
+      <button class="btn-submit" onclick="sendReset()">Send Reset Link</button>
+    </div>
+
+    <div id="forgot-sent" style="display:none;text-align:center;padding:1rem 0">
+      <div style="font-size:2rem;margin-bottom:.75rem">📩</div>
+      <p style="font-weight:700;color:var(--tx);margin-bottom:.5rem">Reset link sent!</p>
+      <p style="font-size:.8rem;color:var(--mu);line-height:1.6">Check your email inbox (or WhatsApp) for the password reset link.</p>
+      <button class="btn-submit" style="margin-top:1.25rem" onclick="closeForgot()">Back to Sign In</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── TAB SWITCHING ────────────────────────────────────
+function switchTab(tab){
+  ['login','register'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active',t===tab);
+    document.getElementById('panel-'+t).classList.toggle('active',t===tab);
+  });
+  clearErrors();
+}
+
+// ── PASSWORD VISIBILITY ─────────────────────────────
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.innerHTML=show
+    ?'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+    :'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+}
+
+// ── PASSWORD STRENGTH ───────────────────────────────
+function checkStrength(val){
+  const wrap=document.getElementById('strength-wrap');
+  const fill=document.getElementById('strength-fill');
+  const lbl=document.getElementById('strength-lbl');
+  if(!val){wrap.classList.remove('show');return;}
+  wrap.classList.add('show');
+  let score=0;
+  if(val.length>=8)score++;
+  if(val.length>=12)score++;
+  if(/[A-Z]/.test(val))score++;
+  if(/[0-9]/.test(val))score++;
+  if(/[^A-Za-z0-9]/.test(val))score++;
+  const levels=[
+    {w:'20%',bg:'#e74c3c',t:'Weak'},
+    {w:'40%',bg:'#e67e22',t:'Fair'},
+    {w:'60%',bg:'#f1c40f',t:'Good'},
+    {w:'80%',bg:'#2ecc71',t:'Strong'},
+    {w:'100%',bg:'#27ae60',t:'Very Strong'}
+  ];
+  const lvl=levels[Math.min(score,4)];
+  fill.style.width=lvl.w;
+  fill.style.background=lvl.bg;
+  lbl.textContent=lvl.t;
+  lbl.style.color=lvl.bg;
+}
+
+// ── VALIDATION HELPERS ──────────────────────────────
+function showErr(id,msg){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.textContent=msg||el.textContent;
+  el.style.display='block';
+  const inp=document.getElementById(id.replace('-err','').replace('r-','r-').replace('l-','l-'));
+  if(inp)inp.classList.add('error');
+}
+function hideErr(id){
+  const el=document.getElementById(id);
+  if(el)el.style.display='none';
+  const inp=document.getElementById(id.replace('-err',''));
+  if(inp)inp.classList.remove('error');
+}
+function clearErrors(){
+  document.querySelectorAll('.f-error').forEach(e=>e.style.display='none');
+  document.querySelectorAll('.f-input.error').forEach(e=>e.classList.remove('error'));
+}
+function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+function isValidPhone(v){return /^[+]?[\d\s\-().]{10,15}$/.test(v.replace(/\s/g,''));}
+
+// ── USER STORE (localStorage + Django API) ──────────
+const API_BASE='http://localhost:8000/api';
+async function apiPost(path,body){
+  try{
+    const res=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json();
+    return{ok:res.ok,status:res.status,data};
+  }catch(e){return{ok:false,status:0,data:null};}
+}
+function getUsers(){try{return JSON.parse(localStorage.getItem('oxfox_users')||'[]');}catch{return[];}}
+function saveUsers(u){localStorage.setItem('oxfox_users',JSON.stringify(u));}
+function getSession(){try{return JSON.parse(localStorage.getItem('oxfox_session')||'null');}catch{return null;}}
+function saveSession(u){localStorage.setItem('oxfox_session',JSON.stringify(u));}
+function clearSession(){localStorage.removeItem('oxfox_session');}
+function genUID(){return 'OXF-'+Math.random().toString(36).substr(2,6).toUpperCase();}
+
+// ── LOGIN ───────────────────────────────────────────
+async function doLogin(){
+  clearErrors();
+  const email=document.getElementById('l-email').value.trim();
+  const pass=document.getElementById('l-pass').value;
+  let ok=true;
+
+  if(!email){showErr('l-email-err','Email or phone is required.');ok=false;}
+  if(!pass){showErr('l-pass-err','Password is required.');ok=false;}
+  if(!ok)return;
+
+  const btn=document.getElementById('btn-login');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Signing in…';
+
+  // Try Django API first
+  const apiRes=await apiPost('/auth/login/',{username:email,password:pass});
+  if(apiRes.ok&&apiRes.data?.access){
+    const d=apiRes.data;
+    const sess={
+      uid:d.user?.id?'OXF-'+String(d.user.id).padStart(6,'0'):genUID(),
+      email:d.user?.email||email,
+      fname:d.user?.first_name||email.split('@')[0],
+      lname:d.user?.last_name||'',
+      token:d.access,
+      refresh:d.refresh,
+    };
+    saveSession(sess);
+    btn.disabled=false;btn.innerHTML='Sign In';
+    document.getElementById('login-form-inner').style.display='none';
+    document.getElementById('login-welcome-msg').textContent='Welcome back, '+sess.fname+'! Signed in via OXFOX account.';
+    document.getElementById('login-success').classList.add('show');
+    toast('Signed in successfully!','green');
+    return;
+  }
+
+  // API error with a message
+  if(apiRes.status>=400&&apiRes.status<500&&apiRes.data){
+    btn.disabled=false;btn.innerHTML='Sign In';
+    const msg=apiRes.data?.detail||apiRes.data?.non_field_errors?.[0]||'Incorrect credentials.';
+    showErr('l-pass-err',msg);
+    return;
+  }
+
+  // Fallback: localStorage
+  const users=getUsers();
+  const user=users.find(u=>u.email===email||u.phone===email);
+  btn.disabled=false;btn.innerHTML='Sign In';
+  if(!user){showErr('l-email-err','No account found with this email or phone.');return;}
+  if(user.password!==btoa(pass)){showErr('l-pass-err','Incorrect password. Please try again.');return;}
+  if(document.getElementById('l-remember').checked)saveSession(user);
+  document.getElementById('login-form-inner').style.display='none';
+  document.getElementById('login-welcome-msg').textContent='Welcome back, '+user.fname+'! Your User ID: '+user.uid;
+  document.getElementById('login-success').classList.add('show');
+  toast('Signed in successfully!','green');
+}
+
+// ── REGISTER ────────────────────────────────────────
+async function doRegister(){
+  clearErrors();
+  const fname=document.getElementById('r-fname').value.trim();
+  const lname=document.getElementById('r-lname').value.trim();
+  const email=document.getElementById('r-email').value.trim();
+  const phone=document.getElementById('r-phone').value.trim();
+  const pass=document.getElementById('r-pass').value;
+  const pass2=document.getElementById('r-pass2').value;
+  const terms=document.getElementById('r-terms').checked;
+  let ok=true;
+
+  if(!fname){showErr('r-fname-err','First name is required.');ok=false;}
+  if(!email||!isValidEmail(email)){showErr('r-email-err','Please enter a valid email address.');ok=false;}
+  if(!phone||!isValidPhone(phone)){showErr('r-phone-err','Please enter a valid phone number.');ok=false;}
+  if(pass.length<8){showErr('r-pass-err','Password must be at least 8 characters.');ok=false;}
+  if(pass!==pass2){showErr('r-pass2-err','Passwords do not match.');ok=false;}
+  if(!terms){toast('Please accept the Terms of Service to continue.');ok=false;}
+  if(!ok)return;
+
+  const btn=document.getElementById('btn-register');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Creating account…';
+
+  // Try Django API first
+  const apiRes=await apiPost('/auth/register/',{username:email,email,first_name:fname,last_name:lname,phone,password:pass,password2:pass2});
+  if(apiRes.ok){
+    // Auto-login after registration
+    const loginRes=await apiPost('/auth/login/',{username:email,password:pass});
+    let sess;
+    if(loginRes.ok&&loginRes.data?.access){
+      const d=loginRes.data;
+      sess={uid:d.user?.id?'OXF-'+String(d.user.id).padStart(6,'0'):genUID(),email,fname,lname,token:d.access,refresh:d.refresh};
+    } else {
+      sess={uid:genUID(),email,fname,lname};
+    }
+    saveSession(sess);
+    localStorage.setItem('oxfox_first_email_login','1');
+    btn.disabled=false;btn.innerHTML='Create My Account';
+    document.getElementById('new-uid').textContent=sess.uid;
+    document.getElementById('register-form-inner').style.display='none';
+    document.getElementById('register-success').classList.add('show');
+    toast('Account created! Welcome, '+fname+'!','green');
+    return;
+  }
+
+  if(apiRes.status>=400&&apiRes.status<500&&apiRes.data){
+    btn.disabled=false;btn.innerHTML='Create My Account';
+    const errs=apiRes.data;
+    if(errs.email)showErr('r-email-err',Array.isArray(errs.email)?errs.email[0]:errs.email);
+    else if(errs.password)showErr('r-pass-err',Array.isArray(errs.password)?errs.password[0]:errs.password);
+    else if(errs.non_field_errors)toast(errs.non_field_errors[0]);
+    return;
+  }
+
+  // Fallback: localStorage
+  const users=getUsers();
+  if(users.find(u=>u.email===email)){btn.disabled=false;btn.innerHTML='Create My Account';showErr('r-email-err','An account with this email already exists.');return;}
+  const uid=genUID();
+  const newUser={uid,fname,lname,email,phone,password:btoa(pass),joined:new Date().toISOString()};
+  users.push(newUser);saveUsers(users);saveSession(newUser);localStorage.setItem('oxfox_first_email_login','1');
+  btn.disabled=false;btn.innerHTML='Create My Account';
+  document.getElementById('new-uid').textContent=uid;
+  document.getElementById('register-form-inner').style.display='none';
+  document.getElementById('register-success').classList.add('show');
+  toast('Account created! User ID: '+uid,'green');
+}
+
+// ── WHATSAPP LOGIN ──────────────────────────────────
+function whatsappLogin(){
+  window.open('https://wa.me/917395906336?text=Hi+OXFOX+Studio!+I+want+to+login+%2F+create+my+account.','_blank');
+  toast('Opening WhatsApp…');
+}
+
+// ── FORGOT PASSWORD ─────────────────────────────────
+function showForgot(){document.getElementById('forgot-overlay').classList.add('show');}
+function closeForgot(){
+  document.getElementById('forgot-overlay').classList.remove('show');
+  document.getElementById('forgot-form').style.display='block';
+  document.getElementById('forgot-sent').style.display='none';
+  document.getElementById('fp-email').value='';
+}
+function closeForgotOutside(e){if(e.target===document.getElementById('forgot-overlay'))closeForgot();}
+function sendReset(){
+  const email=document.getElementById('fp-email').value.trim();
+  if(!email||!isValidEmail(email)){toast('Please enter a valid email address.');return;}
+  document.getElementById('forgot-form').style.display='none';
+  document.getElementById('forgot-sent').style.display='block';
+}
+
+// ── TOAST ───────────────────────────────────────────
+function toast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='show'+(type==='green'?' green':'');
+  setTimeout(()=>t.className='',3000);
+}
+
+// ── SEED TEST ACCOUNTS (runs once) ──────────────────
+function seedTestAccounts(){
+  if(localStorage.getItem('oxfox_seeded'))return;
+  const testUsers=[
+    {uid:'OXF-TEST01',fname:'Priya',lname:'Sharma',email:'test@oxfox.com',phone:'+91 98765 43210',password:btoa('Test@1234'),joined:'2024-01-01T00:00:00.000Z'},
+    {uid:'OXF-TEST02',fname:'Rahul',lname:'Verma',email:'demo@oxfox.com',phone:'+91 91234 56789',password:btoa('Demo@5678'),joined:'2024-01-01T00:00:00.000Z'}
+  ];
+  const existing=getUsers();
+  const merged=[...existing,...testUsers.filter(t=>!existing.find(e=>e.email===t.email))];
+  saveUsers(merged);
+  localStorage.setItem('oxfox_seeded','1');
+}
+
+// ── AUTO-CHECK SESSION ON LOAD ───────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  seedTestAccounts();
+  const session=getSession();
+  if(session){
+    document.getElementById('login-form-inner').style.display='none';
+    document.getElementById('login-welcome-msg').textContent=
+      'Welcome back, '+session.fname+'! Your User ID: '+session.uid;
+    document.getElementById('login-success').classList.add('show');
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — KIMS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --red:        #C0392B;
+            --red-dark:   #922B21;
+            --pink-pale:  #FFF0F3;
+            --pink-light: #FFE4EC;
+            --pink-mid:   #FFCCD9;
+            --white:      #FFFFFF;
+            --dark:       #1C1C1E;
+            --mid:        #4A4A4A;
+            --muted:      #888888;
+            --border:     #F0D0D8;
+            --shadow:     0 4px 20px rgba(192,57,43,.10);
+            --shadow-lg:  0 8px 40px rgba(192,57,43,.16);
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; color:var(--dark); background:#F7F7F8; min-height:100vh; }
+        a { text-decoration:none; color:inherit; }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            position:fixed; top:0; left:0; bottom:0; width:256px;
+            background:var(--dark); display:flex; flex-direction:column; z-index:200; transition:transform .3s;
+        }
+        .sb-logo {
+            padding:28px 24px 22px; border-bottom:1px solid rgba(255,255,255,.08);
+            display:flex; align-items:center; gap:12px;
+        }
+        .sb-logo img { height:46px; width:auto; mix-blend-mode:lighten; }
+        .sb-logo-txt strong { display:block; font-size:15px; font-weight:700; color:#fff; }
+        .sb-logo-txt span   { font-size:11px; color:rgba(255,255,255,.4); }
+        .admin-badge {
+            display:inline-flex; align-items:center; gap:5px;
+            background:var(--red); color:#fff;
+            padding:3px 10px; border-radius:50px; font-size:10px; font-weight:700;
+            letter-spacing:1px; text-transform:uppercase; margin-top:6px;
+        }
+        .sb-nav { flex:1; padding:20px 12px; overflow-y:auto; }
+        .sb-section { font-size:10px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:rgba(255,255,255,.3); padding:4px 12px; margin-bottom:4px; margin-top:18px; }
+        .sb-link {
+            display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:10px;
+            color:rgba(255,255,255,.55); font-size:14px; font-weight:500; cursor:pointer;
+            transition:all .2s; margin-bottom:2px; border:none; background:none; width:100%; text-align:left;
+            font-family:'Inter',sans-serif;
+        }
+        .sb-link i { width:18px; text-align:center; font-size:15px; }
+        .sb-link:hover { background:rgba(255,255,255,.07); color:#fff; }
+        .sb-link.active { background:var(--red); color:#fff; }
+        .sb-bottom { padding:16px 12px; border-top:1px solid rgba(255,255,255,.08); }
+        .sb-user {
+            display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; background:rgba(255,255,255,.05);
+        }
+        .sb-avatar {
+            width:36px; height:36px; border-radius:50%; background:var(--red);
+            display:flex; align-items:center; justify-content:center;
+            color:#fff; font-size:15px; font-weight:700; flex-shrink:0;
+        }
+        .sb-user-name { font-size:13px; font-weight:600; color:#fff; }
+        .sb-user-id   { font-size:11px; color:rgba(255,255,255,.4); }
+        .logout-btn { background:none; border:none; color:rgba(255,255,255,.4); cursor:pointer; font-size:15px; padding:4px; transition:color .2s; margin-left:auto; }
+        .logout-btn:hover { color:#fff; }
+
+        /* ── Main ── */
+        .main { margin-left:256px; min-height:100vh; }
+        .topbar {
+            background:#fff; padding:0 32px; height:68px;
+            display:flex; align-items:center; justify-content:space-between;
+            border-bottom:1px solid #EBEBEB; position:sticky; top:0; z-index:100;
+        }
+        .topbar-title { font-size:18px; font-weight:700; }
+        .topbar-right { display:flex; align-items:center; gap:14px; }
+        .topbar-date { font-size:13px; color:var(--muted); }
+        .ham-btn { display:none; background:none; border:none; cursor:pointer; flex-direction:column; gap:5px; padding:8px; }
+        .ham-btn span { display:block; width:22px; height:2px; background:var(--dark); border-radius:2px; }
+        .overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:190; }
+        .content { padding:32px; }
+
+        /* ── Stats ── */
+        .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px; }
+        .stat-card { background:#fff; border-radius:16px; padding:22px 20px; border:1px solid #EBEBEB; display:flex; align-items:center; gap:14px; }
+        .stat-ico { width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+        .ico-red { background:var(--pink-light); color:var(--red); }
+        .ico-grn { background:#E6F9F1; color:#1a8c52; }
+        .ico-blu { background:#E6F2FF; color:#1a5fa8; }
+        .ico-ylw { background:#FFF8E6; color:#b07d00; }
+        .stat-lbl { font-size:12px; color:var(--muted); margin-bottom:3px; }
+        .stat-val { font-size:28px; font-weight:700; font-family:'Playfair Display',serif; }
+
+        /* ── Card ── */
+        .card { background:#fff; border-radius:20px; border:1px solid #EBEBEB; overflow:hidden; margin-bottom:24px; }
+        .card-head {
+            padding:20px 24px 16px; border-bottom:1px solid #F5F5F5;
+            display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+        }
+        .card-head h3 { font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px; }
+        .card-head h3 i { color:var(--red); }
+        .card-body { padding:24px; }
+
+        /* ── Add User Form ── */
+        .add-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .fg { display:flex; flex-direction:column; gap:6px; }
+        .fg label { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; color:var(--dark); }
+        .fg input, .fg select {
+            padding:11px 14px; border:1.5px solid #E5E5E5; border-radius:10px;
+            font-family:'Inter',sans-serif; font-size:14px; color:var(--dark); outline:none; transition:border-color .2s;
+        }
+        .fg input:focus, .fg select:focus { border-color:var(--red); }
+        .fg-full { grid-column:1/-1; }
+        .uid-display {
+            padding:11px 14px; background:var(--pink-pale); border:1.5px dashed var(--border);
+            border-radius:10px; font-size:14px; font-weight:700; color:var(--red);
+            font-family:'Playfair Display',serif; letter-spacing:1px;
+        }
+        .btn-add {
+            background:var(--red); color:#fff; border:none; padding:12px 28px; border-radius:10px;
+            font-size:14px; font-weight:700; font-family:'Inter',sans-serif; cursor:pointer;
+            transition:all .2s; display:inline-flex; align-items:center; gap:8px;
+        }
+        .btn-add:hover { background:var(--red-dark); transform:translateY(-1px); }
+        .btn-reset {
+            background:#F5F5F5; color:var(--mid); border:none; padding:12px 24px; border-radius:10px;
+            font-size:14px; font-weight:600; font-family:'Inter',sans-serif; cursor:pointer; transition:all .2s;
+        }
+        .btn-reset:hover { background:#E5E5E5; }
+        .form-actions { grid-column:1/-1; display:flex; gap:10px; align-items:center; }
+        .success-msg { font-size:13px; color:#1a8c52; font-weight:600; display:none; align-items:center; gap:6px; }
+
+        /* ── Users Table ── */
+        .search-bar {
+            display:flex; gap:10px; align-items:center;
+        }
+        .search-inp {
+            padding:9px 14px 9px 38px; border:1.5px solid #E5E5E5; border-radius:10px;
+            font-family:'Inter',sans-serif; font-size:14px; outline:none; width:240px; transition:border-color .2s;
+            position:relative;
+        }
+        .search-inp:focus { border-color:var(--red); }
+        .search-wrap { position:relative; }
+        .search-wrap i { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-size:14px; }
+        table { width:100%; border-collapse:collapse; font-size:14px; }
+        thead tr { background:#FAFAFA; }
+        th { padding:11px 16px; text-align:left; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); border-bottom:1px solid #F0F0F0; }
+        td { padding:13px 16px; border-bottom:1px solid #F9F9F9; color:var(--dark); vertical-align:middle; }
+        tr:last-child td { border-bottom:none; }
+        tr:hover td { background:#FAFAFA; }
+        .uid-cell { font-weight:700; color:var(--red); font-family:'Playfair Display',serif; letter-spacing:.5px; }
+        .status-pill {
+            display:inline-flex; align-items:center; gap:5px;
+            padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700;
+        }
+        .pill-active { background:#E6F9F1; color:#1a8c52; }
+        .action-btns { display:flex; gap:6px; }
+        .btn-icon {
+            width:32px; height:32px; border-radius:8px; border:none; cursor:pointer;
+            display:flex; align-items:center; justify-content:center; font-size:13px; transition:all .2s;
+        }
+        .btn-view { background:#E6F2FF; color:#1a5fa8; }
+        .btn-view:hover { background:#1a5fa8; color:#fff; }
+        .btn-del  { background:#FFE6E6; color:#C0392B; }
+        .btn-del:hover { background:#C0392B; color:#fff; }
+        .empty-state { text-align:center; padding:48px 20px; color:var(--muted); }
+        .empty-state i { font-size:40px; margin-bottom:14px; opacity:.3; display:block; }
+        .empty-state p { font-size:15px; margin-bottom:6px; }
+        .empty-state span { font-size:13px; }
+
+        /* ── Modal ── */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; display:none; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        .modal {
+            background:#fff; border-radius:24px; padding:36px; max-width:480px; width:90%;
+            box-shadow:0 20px 60px rgba(0,0,0,.25); animation:popIn .25s ease;
+        }
+        @keyframes popIn { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
+        .modal h3 { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; margin-bottom:18px; display:flex; align-items:center; gap:10px; }
+        .modal h3 i { color:var(--red); }
+        .modal-row { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #F5F5F5; font-size:14px; }
+        .modal-row:last-of-type { border-bottom:none; }
+        .modal-row span:first-child { color:var(--muted); font-size:13px; }
+        .modal-row span:last-child  { font-weight:600; }
+        .modal-close { background:#F5F5F5; border:none; padding:11px 24px; border-radius:10px; font-size:14px; font-weight:600; cursor:pointer; margin-top:18px; font-family:'Inter',sans-serif; }
+        .modal-close:hover { background:#E5E5E5; }
+
+        @media(max-width:900px){
+            .sidebar { transform:translateX(-100%); }
+            .sidebar.open { transform:translateX(0); }
+            .overlay.open { display:block; }
+            .main { margin-left:0; }
+            .ham-btn { display:flex; }
+            .stats-row { grid-template-columns:repeat(2,1fr); }
+            .add-form { grid-template-columns:1fr; }
+        }
+        @media(max-width:480px){
+            .content { padding:16px; }
+            .topbar { padding:0 16px; }
+            .stats-row { grid-template-columns:1fr 1fr; }
+            table { font-size:12px; }
+            th, td { padding:10px 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ── Sidebar ── -->
+<aside class="sidebar" id="sidebar">
+    <div class="sb-logo">
+        <img src="Logo.png" alt="KIMS">
+        <div class="sb-logo-txt">
+            <strong>KIMS Admin</strong>
+            <div class="admin-badge"><i class="fas fa-shield-alt" style="font-size:8px;"></i> Administrator</div>
+        </div>
+    </div>
+    <nav class="sb-nav">
+        <div class="sb-section">Management</div>
+        <button class="sb-link active" onclick="showSection('dashboard',this)"><i class="fas fa-chart-bar"></i> Dashboard</button>
+        <button class="sb-link" onclick="showSection('add-user',this)"><i class="fas fa-user-plus"></i> Add User</button>
+        <button class="sb-link" onclick="showSection('users',this)"><i class="fas fa-users"></i> All Users</button>
+        <div class="sb-section">School</div>
+        <button class="sb-link" onclick="window.location.href='index.html'"><i class="fas fa-globe"></i> KIMS Website</button>
+    </nav>
+    <div class="sb-bottom">
+        <div class="sb-user">
+            <div class="sb-avatar"><i class="fas fa-shield-alt"></i></div>
+            <div>
+                <div class="sb-user-name" id="adminName">Administrator</div>
+                <div class="sb-user-id"   id="adminId">ADMIN</div>
+            </div>
+            <button class="logout-btn" onclick="logout()" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+</aside>
+
+<!-- ── Main ── -->
+<main class="main">
+    <div class="topbar">
+        <div style="display:flex;align-items:center;gap:14px;">
+            <button class="ham-btn" onclick="openSidebar()"><span></span><span></span><span></span></button>
+            <span class="topbar-title" id="pageTitle">Admin Dashboard</span>
+        </div>
+        <div class="topbar-right">
+            <span class="topbar-date" id="topDate"></span>
+        </div>
+    </div>
+
+    <div class="content">
+
+        <!-- ══ Dashboard ══ -->
+        <div id="sec-dashboard">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-ico ico-red"><i class="fas fa-users"></i></div>
+                    <div><div class="stat-lbl">Total Users</div><div class="stat-val" id="statTotal">0</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-ico ico-grn"><i class="fas fa-user-check"></i></div>
+                    <div><div class="stat-lbl">Active</div><div class="stat-val" id="statActive">0</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-ico ico-blu"><i class="fas fa-child"></i></div>
+                    <div><div class="stat-lbl">Children</div><div class="stat-val" id="statChildren">0</div></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-ico ico-ylw"><i class="fas fa-id-card"></i></div>
+                    <div><div class="stat-lbl">Next User ID</div><div class="stat-val" style="font-size:14px;margin-top:4px;" id="statNextId">—</div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <h3><i class="fas fa-users"></i> Recent Users</h3>
+                    <button class="btn-add" onclick="showSection('add-user', document.querySelectorAll('.sb-link')[1])">
+                        <i class="fas fa-plus"></i> Add New User
+                    </button>
+                </div>
+                <div class="card-body" style="padding:0;">
+                    <div id="recentTable"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ Add User ══ -->
+        <div id="sec-add-user" style="display:none;">
+            <div class="card">
+                <div class="card-head">
+                    <h3><i class="fas fa-user-plus"></i> Add New User</h3>
+                </div>
+                <div class="card-body">
+                    <form id="addForm" onsubmit="addUser(event)" autocomplete="off">
+                        <div class="add-form">
+                            <div class="fg">
+                                <label>Auto-Generated User ID</label>
+                                <div class="uid-display" id="newUidDisplay">—</div>
+                            </div>
+                            <div class="fg">
+                                <label>Program</label>
+                                <select id="newProgram">
+                                    <option value="Montessori Primary">Montessori Primary (Ages 3–5)</option>
+                                    <option value="Practical Life">Practical Life</option>
+                                    <option value="Sensorial">Sensorial Learning</option>
+                                </select>
+                            </div>
+                            <div class="fg">
+                                <label>Parent / Guardian Name</label>
+                                <input type="text" id="newParent" placeholder="e.g. Ramesh Kumar" required>
+                            </div>
+                            <div class="fg">
+                                <label>Child's Name</label>
+                                <input type="text" id="newChild" placeholder="e.g. Aanya Kumar" required>
+                            </div>
+                            <div class="fg">
+                                <label>Child's Age</label>
+                                <select id="newAge">
+                                    <option value="3">3 years</option>
+                                    <option value="4">4 years</option>
+                                    <option value="5">5 years</option>
+                                </select>
+                            </div>
+                            <div class="fg">
+                                <label>Email Address</label>
+                                <input type="email" id="newEmail" placeholder="parent@email.com" required>
+                            </div>
+                            <div class="fg">
+                                <label>Phone Number</label>
+                                <input type="tel" id="newPhone" placeholder="+91 XXXXX XXXXX" required>
+                            </div>
+                            <div class="fg">
+                                <label>Password (for user login)</label>
+                                <input type="text" id="newPassword" placeholder="Set a login password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Create User</button>
+                                <button type="button" class="btn-reset" onclick="document.getElementById('addForm').reset()">Clear</button>
+                                <div class="success-msg" id="successMsg"><i class="fas fa-check-circle"></i> User created successfully!</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ All Users ══ -->
+        <div id="sec-users" style="display:none;">
+            <div class="card">
+                <div class="card-head">
+                    <h3><i class="fas fa-users"></i> All Users</h3>
+                    <div class="search-bar">
+                        <div class="search-wrap">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="search-inp" id="searchInp" placeholder="Search by name or ID…" oninput="renderTable()">
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body" style="padding:0; overflow-x:auto;">
+                    <div id="allTable"></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /content -->
+</main>
+
+<!-- ── View Modal ── -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3><i class="fas fa-id-card"></i> User Details</h3>
+        <div id="modalContent"></div>
+        <button class="modal-close" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script>
+    /* ── Auth guard ── */
+    const sess = JSON.parse(sessionStorage.getItem('kims_session') || 'null');
+    if (!sess || sess.role !== 'admin') window.location.href = 'login.html';
+
+    document.getElementById('adminId').textContent = sess.id;
+    document.getElementById('topDate').textContent = new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+    /* ── Helpers ── */
+    function getUsers() { return JSON.parse(localStorage.getItem('kims_users') || '[]'); }
+    function saveUsers(u) { localStorage.setItem('kims_users', JSON.stringify(u)); }
+
+    function nextId() {
+        const users = getUsers();
+        const year  = new Date().getFullYear();
+        const nums  = users.map(u => parseInt((u.id || '').split('-')[2]) || 0);
+        const next  = (nums.length ? Math.max(...nums) : 0) + 1;
+        return `KIMS-${year}-${String(next).padStart(4,'0')}`;
+    }
+
+    /* ── Stats ── */
+    function refreshStats() {
+        const users = getUsers();
+        document.getElementById('statTotal').textContent    = users.length;
+        document.getElementById('statActive').textContent   = users.length;
+        document.getElementById('statChildren').textContent = users.length;
+        document.getElementById('statNextId').textContent   = nextId();
+        document.getElementById('newUidDisplay').textContent = nextId();
+        renderRecentTable(users);
+    }
+
+    /* ── Tables ── */
+    function buildTable(users) {
+        if (!users.length) return `<div class="empty-state"><i class="fas fa-users"></i><p>No users found</p><span>Add a user using the "Add User" section.</span></div>`;
+        return `<table>
+            <thead><tr>
+                <th>User ID</th><th>Parent Name</th><th>Child's Name</th><th>Age</th><th>Program</th><th>Phone</th><th>Status</th><th>Actions</th>
+            </tr></thead>
+            <tbody>
+            ${users.map((u,i) => `<tr>
+                <td class="uid-cell">${u.id}</td>
+                <td>${u.parentName}</td>
+                <td>${u.childName}</td>
+                <td>${u.childAge} yrs</td>
+                <td>${u.program}</td>
+                <td>${u.phone}</td>
+                <td><span class="status-pill pill-active"><i class="fas fa-circle" style="font-size:7px;"></i> Active</span></td>
+                <td>
+                    <div class="action-btns">
+                        <button class="btn-icon btn-view" onclick="viewUser('${u.id}')" title="View"><i class="fas fa-eye"></i></button>
+                        <button class="btn-icon btn-del"  onclick="deleteUser('${u.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>`).join('')}
+            </tbody>
+        </table>`;
+    }
+
+    function renderRecentTable(users) {
+        const recent = [...users].reverse().slice(0, 5);
+        document.getElementById('recentTable').innerHTML = buildTable(recent);
+    }
+
+    function renderTable() {
+        const q = (document.getElementById('searchInp').value || '').toLowerCase();
+        let users = getUsers();
+        if (q) users = users.filter(u =>
+            u.id.toLowerCase().includes(q) ||
+            u.parentName.toLowerCase().includes(q) ||
+            u.childName.toLowerCase().includes(q)
+        );
+        document.getElementById('allTable').innerHTML = buildTable(users);
+    }
+
+    /* ── Add User ── */
+    function addUser(e) {
+        e.preventDefault();
+        const users = getUsers();
+        const id    = nextId();
+        const user  = {
+            id,
+            parentName: document.getElementById('newParent').value.trim(),
+            childName:  document.getElementById('newChild').value.trim(),
+            childAge:   document.getElementById('newAge').value,
+            email:      document.getElementById('newEmail').value.trim(),
+            phone:      document.getElementById('newPhone').value.trim(),
+            password:   document.getElementById('newPassword').value,
+            program:    document.getElementById('newProgram').value,
+            joined:     new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' }),
+        };
+        users.push(user);
+        saveUsers(users);
+        document.getElementById('addForm').reset();
+        const msg = document.getElementById('successMsg');
+        msg.style.display = 'flex';
+        setTimeout(() => msg.style.display = 'none', 3000);
+        refreshStats();
+    }
+
+    /* ── Delete ── */
+    function deleteUser(id) {
+        if (!confirm(`Delete user ${id}? This cannot be undone.`)) return;
+        const users = getUsers().filter(u => u.id !== id);
+        saveUsers(users);
+        refreshStats();
+        renderTable();
+    }
+
+    /* ── View Modal ── */
+    function viewUser(id) {
+        const u = getUsers().find(u => u.id === id);
+        if (!u) return;
+        document.getElementById('modalContent').innerHTML = `
+            <div class="modal-row"><span>User ID</span><span style="color:var(--red);font-family:'Playfair Display',serif;">${u.id}</span></div>
+            <div class="modal-row"><span>Parent Name</span><span>${u.parentName}</span></div>
+            <div class="modal-row"><span>Child's Name</span><span>${u.childName}</span></div>
+            <div class="modal-row"><span>Child's Age</span><span>${u.childAge} years</span></div>
+            <div class="modal-row"><span>Program</span><span>${u.program}</span></div>
+            <div class="modal-row"><span>Email</span><span>${u.email}</span></div>
+            <div class="modal-row"><span>Phone</span><span>${u.phone}</span></div>
+            <div class="modal-row"><span>Password</span><span style="font-family:monospace;">${u.password}</span></div>
+            <div class="modal-row"><span>Joined</span><span>${u.joined}</span></div>
+        `;
+        document.getElementById('modalOverlay').classList.add('open');
+    }
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+    document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+    /* ── Section switcher ── */
+    const secs = ['dashboard','add-user','users'];
+    function showSection(name, btn) {
+        secs.forEach(s => document.getElementById('sec-' + s).style.display = s === name ? '' : 'none');
+        document.querySelectorAll('.sb-link').forEach(l => l.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const titles = { dashboard:'Admin Dashboard', 'add-user':'Add New User', users:'All Users' };
+        document.getElementById('pageTitle').textContent = titles[name] || name;
+        if (name === 'users') renderTable();
+        if (name === 'add-user') document.getElementById('newUidDisplay').textContent = nextId();
+        closeSidebar();
+    }
+
+    /* ── Mobile sidebar ── */
+    function openSidebar()  { document.getElementById('sidebar').classList.add('open');  document.getElementById('overlay').classList.add('open'); }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+    /* ── Logout ── */
+    function logout() { sessionStorage.removeItem('kims_session'); window.location.href = 'login.html'; }
+
+    /* ── Init ── */
+    refreshStats();
+</script>
+</body>
+</html>

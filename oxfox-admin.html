@@ -1,0 +1,1231 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>OXFOX Admin Panel</title>
+<link rel="icon" href="/Logo.png" type="image/png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pk:#0C1A18;--pk2:#122320;--pk3:#182E2A;--pk4:#1E3935;
+  --brd:rgba(200,164,106,.2);--brd2:rgba(200,164,106,.4);
+  --mr:#C8A46A;--mr2:#A87A3C;--mr3:#1F3A36;
+  --tx:#F5F1E8;--mu:#A09080;--mu2:#706560;
+  --wh:#FFFFFF;--bg:#0C1A18;
+  --gold:#C8A46A;
+  --green:#4caf50;--red:#ef5350;--amber:#ffa726;--blue:#42a5f5;
+  --r:6px;--ease:cubic-bezier(.16,1,.3,1);
+  --sidebar:240px;
+}
+html{font-size:16px}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{position:fixed;inset:0;z-index:999;background:var(--mr3);display:flex;align-items:center;justify-content:center;padding:1rem}
+#login-screen.hidden{display:none}
+.login-box{background:var(--pk3);border-radius:16px;padding:3rem 2.5rem;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.login-logo{height:64px;margin-bottom:1.5rem}
+.login-badge{font-size:.6rem;letter-spacing:.28em;text-transform:uppercase;font-weight:700;color:var(--mr);background:var(--pk);padding:5px 14px;border-radius:40px;display:inline-block;margin-bottom:1.25rem}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--tx);margin-bottom:.25rem}
+.login-sub{font-size:.78rem;color:var(--mu);margin-bottom:2rem}
+.l-group{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1rem;text-align:left}
+.l-label{font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);font-weight:700}
+.l-input{padding:13px 16px;border:1.5px solid var(--brd);border-radius:var(--r);font-size:.88rem;font-family:'Inter',sans-serif;color:var(--tx);background:var(--pk4);transition:border .25s}
+.l-input:focus{outline:none;border-color:var(--mr);box-shadow:0 0 0 3px rgba(200,164,106,.08)}
+.l-btn{width:100%;padding:14px;background:var(--mr);color:var(--wh);border:none;border-radius:var(--r);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-top:.5rem;transition:background .3s}
+.l-btn:hover{background:var(--mr2)}
+.l-err{font-size:.78rem;color:var(--red);text-align:center;margin-top:.75rem;display:none}
+
+/* ── ADMIN LAYOUT ── */
+#admin-app{display:flex;min-height:100vh}
+#admin-app.hidden{display:none}
+#sidebar{width:var(--sidebar);background:var(--mr3);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100}
+.sb-logo{padding:1.75rem 1.5rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-logo img{height:44px;object-fit:contain;filter:brightness(0) invert(1)}
+.sb-logo-badge{font-size:.5rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:700;margin-top:.35rem}
+.sb-nav{padding:1rem 0;flex:1}
+.sb-section{font-size:.5rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:700;padding:.75rem 1.5rem .4rem}
+.sb-item{display:flex;align-items:center;gap:.75rem;padding:.85rem 1.5rem;cursor:pointer;color:rgba(255,255,255,.55);font-size:.75rem;letter-spacing:.06em;font-weight:500;transition:all .25s;border:none;background:none;width:100%;text-align:left;border-left:3px solid transparent}
+.sb-item:hover{color:var(--wh);background:rgba(255,255,255,.06)}
+.sb-item.active{color:var(--wh);background:rgba(255,255,255,.1);border-left-color:var(--pk2)}
+.sb-item svg{flex-shrink:0;opacity:.7;transition:opacity .25s}
+.sb-item:hover svg,.sb-item.active svg{opacity:1}
+.sb-footer{padding:1.25rem 1.5rem;border-top:1px solid rgba(255,255,255,.08)}
+.sb-logout{display:flex;align-items:center;gap:.6rem;color:rgba(255,255,255,.45);font-size:.72rem;cursor:pointer;background:none;border:none;font-family:'Inter',sans-serif;transition:color .25s;padding:0;width:100%}
+.sb-logout:hover{color:var(--pk2)}
+
+#main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.top-bar{background:var(--pk2);border-bottom:1px solid var(--brd);padding:1.25rem 2.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.top-bar-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--tx)}
+.top-bar-right{display:flex;align-items:center;gap:1rem}
+.admin-badge{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;background:var(--pk);color:var(--mr);padding:5px 12px;border-radius:40px;font-weight:700;border:1px solid var(--brd2)}
+.content{padding:2rem 2.5rem;flex:1}
+.view{display:none}
+.view.active{display:block}
+
+/* ── CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem}
+.stat-card{background:var(--pk3);border:1.5px solid var(--brd);border-radius:12px;padding:1.5rem;display:flex;flex-direction:column;gap:.4rem}
+.stat-card-ico{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:.25rem}
+.stat-card-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--tx);line-height:1}
+.stat-card-lbl{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);font-weight:600}
+.stat-card-sub{font-size:.72rem;color:var(--mu2);margin-top:.1rem}
+
+/* ── TABLES ── */
+.card{background:var(--pk3);border:1.5px solid var(--brd);border-radius:12px;overflow:hidden;margin-bottom:1.5rem}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;color:var(--tx)}
+.card-sub{font-size:.72rem;color:var(--mu);margin-top:.15rem}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mu);font-weight:700;padding:.875rem 1.25rem;text-align:left;background:var(--pk);border-bottom:1.5px solid var(--brd)}
+.table td{font-size:.82rem;padding:.875rem 1.25rem;border-bottom:1px solid var(--brd);color:var(--tx);vertical-align:middle}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:var(--pk)}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:4px;font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.badge.green{background:#e8f5e9;color:var(--green)}
+.badge.red{background:#ffebee;color:var(--red)}
+.badge.amber{background:#fff3e0;color:var(--amber)}
+.badge.blue{background:#e3f2fd;color:var(--blue)}
+
+/* ── BAR CHART ── */
+.bar-chart{display:flex;flex-direction:column;gap:.5rem;padding:1.25rem 1.5rem}
+.bar-row{display:flex;align-items:center;gap:.875rem}
+.bar-label{font-size:.72rem;color:var(--tx);min-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:10px;background:var(--pk2);border-radius:5px;overflow:hidden}
+.bar-fill{height:100%;background:var(--mr);border-radius:5px;transition:width .8s var(--ease)}
+.bar-val{font-size:.7rem;font-weight:700;color:var(--mr);min-width:50px;text-align:right}
+
+/* ── TIME CHART ── */
+.time-fill{background:var(--mr2)}
+
+/* ── FUNNEL ── */
+.funnel{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;padding:1.5rem}
+.funnel-step{text-align:center;padding:1.25rem 1rem;background:var(--pk);border-radius:10px;border:1.5px solid var(--brd)}
+.funnel-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;color:var(--mr);line-height:1}
+.funnel-lbl{font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mu);font-weight:600;margin-top:.25rem}
+.funnel-pct{font-size:.72rem;color:var(--mu2);margin-top:.2rem}
+
+/* ── FORMS ── */
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.f-group{display:flex;flex-direction:column;gap:.4rem}
+.f-label{font-size:.6rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mu);font-weight:700}
+.f-input,.f-select,.f-textarea{padding:11px 14px;border:1.5px solid var(--brd);border-radius:var(--r);font-size:.85rem;font-family:'Inter',sans-serif;color:var(--tx);background:var(--pk4);transition:border .25s}
+.f-input:focus,.f-select:focus,.f-textarea:focus{outline:none;border-color:var(--mr);box-shadow:0 0 0 3px rgba(200,164,106,.07)}
+.f-textarea{resize:vertical;min-height:80px}
+.f-select option{background:var(--pk4)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;padding:10px 20px;border-radius:var(--r);border:none;cursor:pointer;transition:all .3s}
+.btn-primary{background:var(--mr);color:var(--wh)}
+.btn-primary:hover{background:var(--mr2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(200,164,106,.25)}
+.btn-outline{background:transparent;color:var(--mr);border:1.5px solid var(--brd2)}
+.btn-outline:hover{border-color:var(--mr);background:var(--pk)}
+.btn-danger{background:#ffebee;color:var(--red);border:1.5px solid #ffcdd2}
+.btn-danger:hover{background:var(--red);color:var(--wh)}
+.btn-sm{padding:6px 14px;font-size:.6rem}
+.btn-icon{width:32px;height:32px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:6px}
+
+/* ── DISCOUNT TIERS ── */
+.discount-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;padding:1.5rem}
+.dc-cat{background:var(--pk);border:1.5px solid var(--brd);border-radius:10px;overflow:hidden}
+.dc-cat-head{padding:.875rem 1.25rem;background:var(--pk2);border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:.6rem}
+.dc-cat-ico{font-size:1.2rem}
+.dc-cat-name{font-size:.8rem;font-weight:700;color:var(--tx)}
+.dc-tiers{padding:.875rem 1.25rem;display:flex;flex-direction:column;gap:.5rem}
+.dc-tier{display:flex;align-items:center;gap:.5rem}
+.dc-tier input{flex:1;padding:7px 10px;border:1.5px solid var(--brd);border-radius:4px;font-size:.78rem;font-family:'Inter',sans-serif;color:var(--tx);background:var(--pk4)}
+.dc-tier input:focus{outline:none;border-color:var(--mr)}
+.dc-tier-sep{font-size:.7rem;color:var(--mu);white-space:nowrap}
+.dc-add{margin-top:.5rem;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mr);background:none;border:1.5px dashed var(--brd2);border-radius:4px;padding:7px;width:100%;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;transition:all .25s}
+.dc-add:hover{background:var(--pk2);border-color:var(--mr)}
+.dc-save{margin-top:.75rem}
+.pd-tiers{display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem}
+.img-pick-row{display:flex;gap:.5rem;align-items:center}
+.img-pick-row .f-input{flex:1;min-width:0;font-size:.72rem}
+.img-pick-thumb{width:36px;height:36px;border-radius:4px;object-fit:cover;border:1.5px solid var(--brd);flex-shrink:0;display:none}
+.img-pick-btn{flex-shrink:0;padding:7px 12px;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;font-family:'Inter',sans-serif;background:var(--pk2);color:var(--mr);border:1.5px solid var(--brd2);border-radius:var(--r);cursor:pointer;white-space:nowrap;transition:all .2s}
+.img-pick-btn:hover{background:var(--pk);border-color:var(--mr)}
+.pd-section-head{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--tx);margin:2rem 0 1rem;padding-bottom:.6rem;border-bottom:1.5px solid var(--brd)}
+.prod-disc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;padding:0}
+
+/* ── PRODUCTS VIEW ── */
+.products-toolbar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.products-toolbar .f-input{max-width:260px}
+.prod-table-img{width:48px;height:48px;object-fit:cover;border-radius:6px;background:var(--pk2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid var(--brd)}
+.add-product-form{background:var(--pk3);border:1.5px solid var(--brd);border-radius:12px;padding:2rem;margin-bottom:2rem;display:none}
+.add-product-form.open{display:block}
+.section-heading{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--tx);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1.5px solid var(--brd)}
+
+/* ── DAILY CHART ── */
+.daily-row{display:flex;align-items:center;gap:.875rem;padding:.5rem 0;border-bottom:1px solid var(--brd)}
+.daily-row:last-child{border-bottom:none}
+.daily-date{font-size:.72rem;color:var(--mu);min-width:90px}
+.daily-bar-wrap{flex:1;display:flex;gap:.5rem;align-items:center}
+.daily-bar{height:8px;background:var(--mr);border-radius:4px;min-width:2px;transition:width .6s var(--ease)}
+.daily-bar.checkout{background:var(--green)}
+.daily-val{font-size:.7rem;font-weight:700;color:var(--tx);min-width:30px}
+
+/* ── CALENDAR ── */
+.cal-wrap{padding:1.25rem 1.5rem}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.cal-nav-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--tx)}
+.cal-nav-btn{background:none;border:1.5px solid var(--brd2);border-radius:var(--r);padding:5px 12px;cursor:pointer;color:var(--tx);font-size:.72rem;font-weight:600;transition:all .2s}
+.cal-nav-btn:hover{background:var(--pk);border-color:var(--mr)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);font-weight:700;text-align:center;padding:.35rem 0}
+.cal-cell{aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.65rem;border:1.5px solid transparent;transition:all .2s;min-height:38px}
+.cal-cell.empty{background:none;border-color:transparent}
+.cal-cell.today{border-color:var(--mr)!important}
+.cal-cell.has-data{cursor:pointer}
+.cal-cell.has-data:hover{transform:scale(1.06);z-index:1;position:relative}
+.cal-cell-day{font-size:.68rem;font-weight:600;line-height:1}
+.cal-cell-val{font-size:.58rem;font-weight:700;margin-top:1px}
+.cal-legend{display:flex;align-items:center;gap:1.25rem;margin-top:1rem;font-size:.68rem;color:var(--mu)}
+.cal-legend-swatch{width:14px;height:10px;border-radius:2px;display:inline-block;vertical-align:middle;margin-right:4px}
+
+/* ── EDIT MODAL ── */
+#edit-modal{position:fixed;inset:0;z-index:8000;background:rgba(61,8,8,.5);display:none;align-items:flex-start;justify-content:center;backdrop-filter:blur(3px);overflow-y:auto;padding:2rem 1rem}
+#edit-modal.open{display:flex}
+.edit-box{background:var(--pk3);border-radius:12px;padding:2rem;max-width:700px;width:100%;margin:auto}
+.edit-box-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--tx);margin-bottom:1.5rem;padding-bottom:.75rem;border-bottom:1.5px solid var(--brd)}
+
+/* ── TOAST ── */
+#a-toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(80px);z-index:9999;background:var(--mr);color:var(--wh);padding:11px 24px;border-radius:40px;font-size:.72rem;font-weight:600;letter-spacing:.1em;white-space:nowrap;transition:transform .4s var(--ease),opacity .4s;opacity:0;pointer-events:none}
+#a-toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ── CONFIRM MODAL ── */
+#confirm-modal{position:fixed;inset:0;z-index:9000;background:rgba(61,8,8,.45);display:none;align-items:center;justify-content:center;backdrop-filter:blur(3px)}
+#confirm-modal.open{display:flex}
+.confirm-box{background:var(--pk3);border-radius:12px;padding:2rem;max-width:380px;width:90%;text-align:center}
+.confirm-box h3{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;margin-bottom:.75rem}
+.confirm-box p{font-size:.85rem;color:var(--mu);line-height:1.7;margin-bottom:1.5rem}
+.confirm-btns{display:flex;gap:.75rem;justify-content:center}
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <img class="login-logo" src="/Logo.png" alt="OXFOX" onerror="this.style.display='none'">
+    <div class="login-badge">Admin Panel</div>
+    <div class="login-title">Welcome Back</div>
+    <p class="login-sub">Sign in to manage your OXFOX store</p>
+    <div id="step-phone">
+      <div class="l-group">
+        <label class="l-label">Phone Number</label>
+        <input class="l-input" id="a-phone" type="tel" placeholder="Enter admin phone number" onkeydown="if(event.key==='Enter')sendAdminOTP()">
+      </div>
+      <button class="l-btn" onclick="sendAdminOTP()">Send OTP</button>
+    </div>
+    <div id="step-otp" style="display:none">
+      <div class="l-group">
+        <label class="l-label">Enter OTP</label>
+        <p style="font-size:.65rem;color:var(--mu);margin-bottom:.6rem">OTP sent to your registered number</p>
+        <input class="l-input" id="a-otp" type="text" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')doAdminLogin()" style="letter-spacing:.5em;text-align:center;font-size:1.2rem;font-weight:700">
+      </div>
+      <button class="l-btn" onclick="doAdminLogin()">Verify &amp; Sign In</button>
+      <button onclick="document.getElementById('step-phone').style.display='';document.getElementById('step-otp').style.display='none';document.getElementById('l-err').textContent='';" style="background:none;border:none;cursor:pointer;font-size:.7rem;color:var(--mu);margin-top:.5rem;width:100%;font-family:'Inter',sans-serif">&#8592; Change number</button>
+    </div>
+    <div class="l-err" id="l-err" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="admin-app" class="hidden">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sb-logo">
+      <img src="/Logo.png" alt="OXFOX" onerror="this.style.display='none'">
+      <div class="sb-logo-badge">Admin Panel</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Overview</div>
+      <button class="sb-item active" onclick="showView('dashboard',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <div class="sb-section">Analytics</div>
+      <button class="sb-item" onclick="showView('analytics',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Traffic & Visitors
+      </button>
+      <button class="sb-item" onclick="showView('products-time',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Product Engagement
+      </button>
+      <div class="sb-section">Store</div>
+      <button class="sb-item" onclick="showView('products',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Products
+      </button>
+      <button class="sb-item" onclick="showView('discounts',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Discounts
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <button class="sb-logout" onclick="adminLogout()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="main">
+    <div class="top-bar">
+      <div>
+        <div class="top-bar-title" id="view-title">Dashboard</div>
+      </div>
+      <div class="top-bar-right">
+        <span class="admin-badge">&#x1F512; Admin</span>
+        <a href="oxfox-studio.html" target="_blank" style="font-size:.68rem;color:var(--mr);text-decoration:none;letter-spacing:.1em;text-transform:uppercase;font-weight:700;border:1.5px solid var(--brd2);padding:7px 14px;border-radius:var(--r);transition:all .25s" onmouseover="this.style.background='var(--pk)'" onmouseout="this.style.background='none'">&#x1F517; View Store</a>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-row" id="dash-stats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Visitor Calendar</div><div class="card-sub">Sessions per day — color intensity = traffic level</div></div>
+            </div>
+            <div id="daily-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Conversion Funnel</div></div>
+            <div class="funnel" id="dash-funnel"></div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:1.5rem">
+          <div class="card-header"><div><div class="card-title">Top Viewed Products</div><div class="card-sub">By number of views</div></div></div>
+          <div class="bar-chart" id="top-products-chart"></div>
+        </div>
+      </div>
+
+      <!-- ══ TRAFFIC & VISITORS ══ -->
+      <div class="view" id="view-analytics">
+        <div class="stats-row" id="ana-stats"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Page Views by Section</div></div>
+            <div class="bar-chart" id="page-views-chart"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Category Page Views</div></div>
+            <div class="bar-chart" id="cat-views-chart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Daily Session Log</div><div class="card-sub">Sessions vs Checkouts per day</div></div></div>
+          <div style="padding:1.25rem 1.5rem" id="daily-log"></div>
+        </div>
+      </div>
+
+      <!-- ══ PRODUCT ENGAGEMENT ══ -->
+      <div class="view" id="view-products-time">
+        <div class="stats-row" id="pe-stats"></div>
+        <div class="card">
+          <div class="card-header"><div><div class="card-title">Time Spent on Products</div><div class="card-sub">Cumulative time visitors spent viewing each product page</div></div></div>
+          <div class="bar-chart" id="product-time-chart"></div>
+        </div>
+        <div class="card" style="margin-top:1.5rem">
+          <div class="card-header"><div class="card-title">Full Product Engagement Report</div></div>
+          <table class="table" id="product-engage-table">
+            <thead><tr>
+              <th>Product</th><th>Views</th><th>Total Time</th><th>Avg. Time / View</th><th>Engagement</th>
+            </tr></thead>
+            <tbody id="engage-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PRODUCTS MANAGEMENT ══ -->
+      <div class="view" id="view-products">
+        <div class="products-toolbar">
+          <input class="f-input" id="prod-search" placeholder="Search products…" oninput="filterProductTable(this.value)">
+          <select class="f-select" id="prod-filter-cat" onchange="filterProductTable(document.getElementById('prod-search').value)" style="max-width:180px">
+            <option value="">All Categories</option>
+          </select>
+          <button class="btn btn-primary" onclick="toggleAddForm()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Product
+          </button>
+          <button class="btn btn-outline" onclick="exportData()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+        </div>
+
+        <!-- ADD PRODUCT FORM -->
+        <div class="add-product-form" id="add-product-form">
+          <div class="section-heading">Add New Product</div>
+          <div class="form-grid-2">
+            <div class="f-group"><label class="f-label">Product Name *</label><input class="f-input" id="ap-name" placeholder="e.g. Rose Candle Mold"></div>
+            <div class="f-group"><label class="f-label">Category *</label>
+              <select class="f-select" id="ap-cat">
+                <option value="candles">Candles / Resin / Soap</option>
+                <option value="concrete">Concrete / Jesmonite</option>
+                <option value="chocolates">Chocolates</option>
+                <option value="festive">Festive / Holiday</option>
+                <option value="candlejars">Candle Jars</option>
+                <option value="decor">Home Decor</option>
+              </select>
+            </div>
+            <div class="f-group"><label class="f-label">Material</label><input class="f-input" id="ap-mat" placeholder="e.g. Silicone" value="Silicone"></div>
+            <div class="f-group"><label class="f-label">Filter Tag</label><input class="f-input" id="ap-filter" placeholder="e.g. Floral"></div>
+            <div class="f-group"><label class="f-label">Price (₹) *</label><input class="f-input" id="ap-price" type="number" min="1" placeholder="799"></div>
+            <div class="f-group"><label class="f-label">MRP (₹) *</label><input class="f-input" id="ap-mrp" type="number" min="1" placeholder="999"></div>
+            <div class="f-group"><label class="f-label">Badge</label>
+              <select class="f-select" id="ap-badge">
+                <option value="">None</option><option value="best">Bestseller</option><option value="new">New Arrival</option>
+              </select>
+            </div>
+            <div class="f-group"><label class="f-label">Emoji Icon</label><input class="f-input" id="ap-emoji" placeholder="🌸" value="🛍️"></div>
+            <div class="f-group" style="grid-column:1/-1">
+              <label class="f-label">Quantity-Based Discount Tiers</label>
+              <div class="pd-tiers" id="ap-prod-tiers"></div>
+              <button type="button" class="dc-add" onclick="addProdTierTo('ap-prod-tiers')" style="margin-top:.5rem">+ Add Tier</button>
+              <div style="font-size:.62rem;color:var(--mu2);margin-top:.4rem">e.g. Min 2 units &rarr; 20% off. Customer buying that many of this product gets the discount automatically.</div>
+            </div>
+            <div class="f-group" style="grid-column:1/-1">
+              <label class="f-label">Images — up to 6 (upload or paste URL)</label>
+              <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem">
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb1"><input class="f-input" id="ap-img1" placeholder="Image 1 — primary (URL or pick file)"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img1','ap-thumb1')">Browse</button></div>
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb2"><input class="f-input" id="ap-img2" placeholder="Image 2"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img2','ap-thumb2')">Browse</button></div>
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb3"><input class="f-input" id="ap-img3" placeholder="Image 3"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img3','ap-thumb3')">Browse</button></div>
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb4"><input class="f-input" id="ap-img4" placeholder="Image 4"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img4','ap-thumb4')">Browse</button></div>
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb5"><input class="f-input" id="ap-img5" placeholder="Image 5"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img5','ap-thumb5')">Browse</button></div>
+                <div class="img-pick-row"><img class="img-pick-thumb" id="ap-thumb6"><input class="f-input" id="ap-img6" placeholder="Image 6"><button type="button" class="img-pick-btn" onclick="pickImage('ap-img6','ap-thumb6')">Browse</button></div>
+              </div>
+              <div style="font-size:.6rem;color:var(--mu2);margin-top:.35rem">Click <strong>Browse</strong> to upload from your computer. Max ~800 KB per image for best performance.</div>
+            </div>
+            <div class="f-group" style="grid-column:1/-1"><label class="f-label">Description *</label><textarea class="f-textarea" id="ap-desc" rows="3" placeholder="Describe the product — size, use case, material details…"></textarea></div>
+          </div>
+          <div style="display:flex;gap:.875rem;margin-top:1.5rem">
+            <button class="btn btn-primary" onclick="saveNewProduct()">Save Product</button>
+            <button class="btn btn-outline" onclick="toggleAddForm()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- PRODUCTS TABLE -->
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">All Products</div><div class="card-sub" id="prod-count-lbl"></div></div>
+          </div>
+          <table class="table">
+            <thead><tr>
+              <th></th><th>Product</th><th>Category</th><th>Material</th><th>Price</th><th>Discount</th><th>Badge</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="products-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ DISCOUNTS ══ -->
+      <div class="view" id="view-discounts">
+        <div style="margin-bottom:1.5rem;padding:1.25rem 1.5rem;background:var(--pk);border:1.5px solid var(--brd);border-radius:10px;font-size:.85rem;color:var(--mu);line-height:1.7">
+          <strong style="color:var(--tx)">Category Discounts:</strong> When a customer adds <em>X or more</em> products from a category, they get the discount automatically.
+        </div>
+        <div class="discount-grid" id="discount-grid"></div>
+        <div style="margin-top:1.25rem;text-align:right">
+          <button class="btn btn-primary" onclick="saveAllDiscounts()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Category Discounts
+          </button>
+        </div>
+
+        <!-- Per-product discounts -->
+        <div class="pd-section-head">Per-Product Quantity Discounts</div>
+        <div style="margin-bottom:1.5rem;padding:1.25rem 1.5rem;background:var(--pk);border:1.5px solid var(--brd);border-radius:10px;font-size:.85rem;color:var(--mu);line-height:1.7">
+          <strong style="color:var(--tx)">Product Discounts:</strong> Set discount tiers for individual products. e.g. Item 1 — if 2 units, 20% off; if 5 units, 40% off.
+        </div>
+        <div class="prod-disc-grid discount-grid" id="prod-discount-grid"></div>
+        <div style="margin-top:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+          <select class="f-select" id="pd-prod-select" style="max-width:320px;flex:1">
+            <option value="">Select a product to add discount rule&hellip;</option>
+          </select>
+          <button class="btn btn-outline" onclick="addProdDiscountRule()">+ Add Rule</button>
+        </div>
+        <div style="margin-top:1.25rem;text-align:right">
+          <button class="btn btn-primary" onclick="saveAllProductDiscounts()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Product Discounts
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end .content -->
+  </main>
+</div><!-- end #admin-app -->
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="edit-modal">
+  <div class="edit-box">
+    <div class="edit-box-title">Edit Product</div>
+    <input type="hidden" id="ep-id">
+    <input type="hidden" id="ep-cat-key">
+    <div class="form-grid-2">
+      <div class="f-group"><label class="f-label">Product Name *</label><input class="f-input" id="ep-name"></div>
+      <div class="f-group"><label class="f-label">Category *</label>
+        <select class="f-select" id="ep-cat">
+          <option value="candles">Candles / Resin / Soap</option>
+          <option value="concrete">Concrete / Jesmonite</option>
+          <option value="chocolates">Chocolates</option>
+          <option value="festive">Festive / Holiday</option>
+          <option value="candlejars">Candle Jars</option>
+          <option value="decor">Home Decor</option>
+        </select>
+      </div>
+      <div class="f-group"><label class="f-label">Material</label><input class="f-input" id="ep-mat"></div>
+      <div class="f-group"><label class="f-label">Filter Tag</label><input class="f-input" id="ep-filter"></div>
+      <div class="f-group"><label class="f-label">Price (₹) *</label><input class="f-input" id="ep-price" type="number" min="1"></div>
+      <div class="f-group"><label class="f-label">MRP (₹) *</label><input class="f-input" id="ep-mrp" type="number" min="1"></div>
+      <div class="f-group"><label class="f-label">Badge</label>
+        <select class="f-select" id="ep-badge">
+          <option value="">None</option><option value="best">Bestseller</option><option value="new">New Arrival</option>
+        </select>
+      </div>
+      <div class="f-group"><label class="f-label">Emoji Icon</label><input class="f-input" id="ep-emoji"></div>
+      <div class="f-group" style="grid-column:1/-1">
+        <label class="f-label">Quantity-Based Discount Tiers</label>
+        <div class="pd-tiers" id="ep-prod-tiers"></div>
+        <button type="button" class="dc-add" onclick="addProdTierTo('ep-prod-tiers')" style="margin-top:.5rem">+ Add Tier</button>
+        <div style="font-size:.62rem;color:var(--mu2);margin-top:.4rem">e.g. Min 2 units &rarr; 20% off.</div>
+      </div>
+      <div class="f-group" style="grid-column:1/-1">
+        <label class="f-label">Images — up to 6 (upload or paste URL)</label>
+        <div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.25rem">
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb1"><input class="f-input" id="ep-img1" placeholder="Image 1 — primary"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img1','ep-thumb1')">Browse</button></div>
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb2"><input class="f-input" id="ep-img2" placeholder="Image 2"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img2','ep-thumb2')">Browse</button></div>
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb3"><input class="f-input" id="ep-img3" placeholder="Image 3"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img3','ep-thumb3')">Browse</button></div>
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb4"><input class="f-input" id="ep-img4" placeholder="Image 4"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img4','ep-thumb4')">Browse</button></div>
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb5"><input class="f-input" id="ep-img5" placeholder="Image 5"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img5','ep-thumb5')">Browse</button></div>
+          <div class="img-pick-row"><img class="img-pick-thumb" id="ep-thumb6"><input class="f-input" id="ep-img6" placeholder="Image 6"><button type="button" class="img-pick-btn" onclick="pickImage('ep-img6','ep-thumb6')">Browse</button></div>
+        </div>
+      </div>
+      <div class="f-group" style="grid-column:1/-1"><label class="f-label">Description *</label><textarea class="f-textarea" id="ep-desc" rows="3"></textarea></div>
+    </div>
+    <div style="display:flex;gap:.875rem;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="saveEditProduct()">Save Changes</button>
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div id="confirm-modal">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Delete Product?</h3>
+    <p id="confirm-msg">This will remove the product from the store. This cannot be undone from the admin panel.</p>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" id="confirm-ok">Delete</button>
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="a-toast"></div>
+<script>
+/* ══════════════════════════════════════════
+   DATA DEFINITIONS (mirrors oxfox-studio.html)
+   ══════════════════════════════════════════ */
+const CATS = {
+  women:      {name:'Women',             icon:'👩'},
+  men:        {name:'Men',               icon:'👨'},
+  animals:    {name:'Animals & Teddies', icon:'🐨'},
+  cakes:      {name:'Cakes & Cupcakes',  icon:'🎂'},
+  rakhi:      {name:'Rakhi',             icon:'🪢'},
+  diwali:     {name:'Diwali',            icon:'🪔'},
+  eidramadan: {name:'Eid / Ramadan',     icon:'🌙'},
+  jars:       {name:'Jars',              icon:'🫙'},
+  decor:      {name:'Decor',             icon:'🏠'},
+};
+
+/* ══ AUTH ══ */
+const ADMIN_PHONE = '7395906336';
+const DEMO_OTP    = '1234';
+
+function sendAdminOTP(){
+  const ph = document.getElementById('a-phone').value.replace(/\D/g,'');
+  const err = document.getElementById('l-err');
+  if(ph !== ADMIN_PHONE){
+    err.textContent = 'Phone number not recognised.';
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+  document.getElementById('step-phone').style.display = 'none';
+  document.getElementById('step-otp').style.display = '';
+  document.getElementById('a-otp').focus();
+}
+
+function doAdminLogin(){
+  const otp = document.getElementById('a-otp').value.trim();
+  const err = document.getElementById('l-err');
+  if(otp === DEMO_OTP){
+    localStorage.setItem('oxfox_admin_session','1');
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('admin-app').classList.remove('hidden');
+    initApp();
+  } else {
+    err.textContent = 'Incorrect OTP. Please try again.';
+    err.style.display = 'block';
+  }
+}
+function adminLogout(){
+  localStorage.removeItem('oxfox_admin_session');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('admin-app').classList.add('hidden');
+}
+window.addEventListener('load',()=>{
+  if(localStorage.getItem('oxfox_admin_session')==='1'){
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('admin-app').classList.remove('hidden');
+    initApp();
+  }
+});
+
+/* ══ NAVIGATION ══ */
+function showView(name, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  const titles={
+    dashboard:'Dashboard',analytics:'Traffic & Visitors',
+    'products-time':'Product Engagement',products:'Products',discounts:'Discounts'
+  };
+  document.getElementById('view-title').textContent=titles[name]||name;
+  renderView(name);
+}
+
+/* ══ INIT ══ */
+function initApp(){
+  populateCatFilters();
+  renderView('dashboard');
+}
+
+/* ══ ANALYTICS DATA ══ */
+function getA(){
+  try{return JSON.parse(localStorage.getItem('oxfox_analytics'))||{totalVisits:0,pageViews:{home:0,cart:0,checkout:0,custom:0,about:0,category:{},product:{}},checkoutCompleted:0,dailyVisitors:{}};}
+  catch(e){return {totalVisits:0,pageViews:{home:0,cart:0,checkout:0,custom:0,about:0,category:{},product:{}},checkoutCompleted:0,dailyVisitors:{}};}
+}
+
+/* ══ RENDER VIEWS ══ */
+function renderView(name){
+  if(name==='dashboard')renderDashboard();
+  else if(name==='analytics')renderAnalytics();
+  else if(name==='products-time')renderProductEngagement();
+  else if(name==='products')renderProducts();
+  else if(name==='discounts')renderDiscounts();
+}
+
+/* ─ DASHBOARD ─ */
+function renderDashboard(){
+  const a=getA();
+  const pv=a.pageViews;
+  const totalPV=a.totalVisits||0;
+  const checkouts=a.checkoutCompleted||0;
+  const cartViews=pv.cart||0;
+  const prodViews=Object.values(pv.product||{}).reduce((s,p)=>s+(p.views||0),0);
+  const convRate=totalPV>0?((checkouts/totalPV)*100).toFixed(1):0;
+  document.getElementById('dash-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fce4ec">&#x1F464;</div><div class="stat-card-num">${totalPV.toLocaleString()}</div><div class="stat-card-lbl">Total Page Loads</div><div class="stat-card-sub">All sessions recorded</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e8f5e9">&#x1F6D2;</div><div class="stat-card-num">${cartViews}</div><div class="stat-card-lbl">Cart Views</div><div class="stat-card-sub">Visitors who opened cart</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e3f2fd">&#x2705;</div><div class="stat-card-num">${checkouts}</div><div class="stat-card-lbl">Checkouts</div><div class="stat-card-sub">Reached checkout page</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fff3e0">&#x1F4CA;</div><div class="stat-card-num">${convRate}%</div><div class="stat-card-lbl">Conversion Rate</div><div class="stat-card-sub">Loads → Checkout</div></div>
+  `;
+  renderDailyChart();
+  renderFunnel(a);
+  renderTopProductsChart(a);
+}
+
+let calYear=new Date().getFullYear(), calMonth=new Date().getMonth();
+
+function renderDailyChart(){
+  const container=document.getElementById('daily-chart');
+  const a=getA();
+  const data=a.dailyVisitors||{};
+  const today=new Date();
+  const yr=calYear, mo=calMonth;
+  const firstDay=new Date(yr,mo,1).getDay();
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const monthName=new Date(yr,mo,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const monthEntries=Object.entries(data).filter(([d])=>{const dt=new Date(d);return dt.getFullYear()===yr&&dt.getMonth()===mo;});
+  const max=Math.max(...monthEntries.map(([,v])=>v.sessions||0),1);
+  const dowHTML=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  let cells='';
+  for(let i=0;i<firstDay;i++)cells+=`<div class="cal-cell empty"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const d=data[dateStr];
+    const sessions=d?d.sessions||0:0;
+    const checkouts=d?d.checkouts||0:0;
+    const isToday=yr===today.getFullYear()&&mo===today.getMonth()&&day===today.getDate();
+    const intensity=sessions?Math.max(0.18,sessions/max):0;
+    const bg=sessions?`rgba(200,164,106,${intensity.toFixed(2)})`:'var(--pk)';
+    const textLight=intensity>0.5;
+    cells+=`<div class="cal-cell${sessions?' has-data':''}${isToday?' today':''}" style="background:${bg}" title="${dateStr}${sessions?': '+sessions+' sessions'+(checkouts?' · '+checkouts+' checkouts':''):''}">
+      <span class="cal-cell-day" style="color:${textLight?'#fff':'var(--tx)'}">${day}</span>
+      ${sessions?`<span class="cal-cell-val" style="color:${textLight?'rgba(255,255,255,.8)':'var(--mr)'}">${sessions}</span>`:''}
+    </div>`;
+  }
+  container.innerHTML=`<div class="cal-wrap">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">&#8249; Prev</button>
+      <div class="cal-nav-title">${monthName}</div>
+      <button class="cal-nav-btn" onclick="calNext()">Next &#8250;</button>
+    </div>
+    <div class="cal-grid">${dowHTML}${cells}</div>
+    <div class="cal-legend">
+      <div><span class="cal-legend-swatch" style="background:var(--pk);border:1px solid var(--brd)"></span>No visits</div>
+      <div><span class="cal-legend-swatch" style="background:rgba(200,164,106,.25)"></span>Low</div>
+      <div><span class="cal-legend-swatch" style="background:rgba(200,164,106,.6)"></span>Medium</div>
+      <div><span class="cal-legend-swatch" style="background:rgba(200,164,106,1)"></span>High</div>
+    </div>
+  </div>`;
+}
+function calPrev(){calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderDailyChart();}
+function calNext(){calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderDailyChart();}
+
+function renderFunnel(a){
+  const total=a.totalVisits||0;
+  const catViews=Object.values(a.pageViews.category||{}).reduce((s,v)=>s+v,0);
+  const prodViews=Object.values(a.pageViews.product||{}).reduce((s,p)=>s+(p.views||0),0);
+  const cart=a.pageViews.cart||0;
+  const checkout=a.checkoutCompleted||0;
+  function pct(n){return total>0?((n/total)*100).toFixed(0)+'%':'—';}
+  document.getElementById('dash-funnel').innerHTML=`
+    <div class="funnel-step"><div class="funnel-num">${total}</div><div class="funnel-lbl">Home Views</div><div class="funnel-pct">100%</div></div>
+    <div class="funnel-step"><div class="funnel-num">${catViews}</div><div class="funnel-lbl">Category Views</div><div class="funnel-pct">${pct(catViews)}</div></div>
+    <div class="funnel-step"><div class="funnel-num">${cart}</div><div class="funnel-lbl">Cart Views</div><div class="funnel-pct">${pct(cart)}</div></div>
+    <div class="funnel-step"><div class="funnel-num">${checkout}</div><div class="funnel-lbl">Checkouts</div><div class="funnel-pct">${pct(checkout)}</div></div>
+  `;
+}
+
+function renderTopProductsChart(a){
+  const prods=Object.entries(a.pageViews.product||{}).sort((x,y)=>(y[1].views||0)-(x[1].views||0)).slice(0,8);
+  if(!prods.length){document.getElementById('top-products-chart').innerHTML='<div style="padding:1.5rem;text-align:center;color:var(--mu);font-size:.82rem">No product views yet.</div>';return;}
+  const max=Math.max(...prods.map(p=>p[1].views||0),1);
+  document.getElementById('top-products-chart').innerHTML=prods.map(([id,d])=>`
+    <div class="bar-row">
+      <div class="bar-label">${d.name||id}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((d.views/max)*100)}%"></div></div>
+      <div class="bar-val">${d.views} views</div>
+    </div>`).join('');
+}
+
+/* ─ ANALYTICS ─ */
+function renderAnalytics(){
+  const a=getA();
+  const pv=a.pageViews;
+  const total=a.totalVisits||0;
+  const catTotal=Object.values(pv.category||{}).reduce((s,v)=>s+v,0);
+  const prodTotal=Object.values(pv.product||{}).reduce((s,p)=>s+(p.views||0),0);
+  const days=Object.keys(a.dailyVisitors||{}).length;
+  document.getElementById('ana-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fce4ec">&#x1F4C5;</div><div class="stat-card-num">${days}</div><div class="stat-card-lbl">Active Days</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e8f5e9">&#x1F6F8;</div><div class="stat-card-num">${total}</div><div class="stat-card-lbl">Total Page Loads</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e3f2fd">&#x1F4C2;</div><div class="stat-card-num">${catTotal}</div><div class="stat-card-lbl">Category Views</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fff3e0">&#x1F4F1;</div><div class="stat-card-num">${prodTotal}</div><div class="stat-card-lbl">Product Views</div></div>
+  `;
+  // Page views chart
+  const pages=[
+    {lbl:'Home',v:pv.home||0},{lbl:'Category Pages',v:catTotal},{lbl:'Product Pages',v:prodTotal},
+    {lbl:'Cart',v:pv.cart||0},{lbl:'Checkout',v:a.checkoutCompleted||0},
+    {lbl:'Custom Order',v:pv.custom||0},{lbl:'About Us',v:pv.about||0}
+  ];
+  const maxPV=Math.max(...pages.map(p=>p.v),1);
+  document.getElementById('page-views-chart').innerHTML=pages.map(p=>`
+    <div class="bar-row">
+      <div class="bar-label">${p.lbl}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((p.v/maxPV)*100)}%"></div></div>
+      <div class="bar-val">${p.v}</div>
+    </div>`).join('');
+  // Category chart
+  const cats=Object.entries(pv.category||{}).sort((x,y)=>y[1]-x[1]);
+  const maxCat=Math.max(...cats.map(c=>c[1]),1);
+  document.getElementById('cat-views-chart').innerHTML=cats.length?cats.map(([k,v])=>`
+    <div class="bar-row">
+      <div class="bar-label">${CATS[k]?CATS[k].icon+' '+CATS[k].name:k}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round((v/maxCat)*100)}%"></div></div>
+      <div class="bar-val">${v}</div>
+    </div>`).join(''):'<div style="padding:1.5rem;text-align:center;color:var(--mu);font-size:.82rem">No category data yet.</div>';
+  // Daily log
+  const allDays=Object.entries(a.dailyVisitors||{}).sort((x,y)=>y[0]<x[0]?-1:1).slice(0,30);
+  const maxSess=Math.max(...allDays.map(d=>d[1].sessions||0),1);
+  document.getElementById('daily-log').innerHTML=allDays.length?`
+    <div style="display:grid;grid-template-columns:120px 1fr 80px 80px;gap:.5rem;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--mu);font-weight:700;padding:.5rem 0;border-bottom:1.5px solid var(--brd);margin-bottom:.5rem">
+      <span>Date</span><span>Sessions (bar)</span><span>Sessions</span><span>Checkouts</span>
+    </div>`+allDays.map(([date,d])=>{
+      const pct=Math.round(((d.sessions||0)/maxSess)*100);
+      const label=new Date(date).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'});
+      return `<div style="display:grid;grid-template-columns:120px 1fr 80px 80px;gap:.5rem;align-items:center;padding:.5rem 0;border-bottom:1px solid var(--brd)">
+        <span style="font-size:.75rem;color:var(--mu)">${label}</span>
+        <div style="height:8px;background:var(--pk2);border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--mr);border-radius:4px"></div></div>
+        <span style="font-size:.8rem;font-weight:700;color:var(--tx)">${d.sessions||0}</span>
+        <span style="font-size:.8rem;color:var(--green);font-weight:700">${d.checkouts||0}</span>
+      </div>`;
+    }).join(''):'<div style="text-align:center;padding:2rem;color:var(--mu);font-size:.82rem">No session data yet.</div>';
+}
+
+/* ─ PRODUCT ENGAGEMENT ─ */
+function renderProductEngagement(){
+  const a=getA();
+  const prods=Object.entries(a.pageViews.product||{}).sort((x,y)=>(y[1].totalTimeMs||0)-(x[1].totalTimeMs||0));
+  const totalViews=prods.reduce((s,p)=>s+(p[1].views||0),0);
+  const totalTimeMs=prods.reduce((s,p)=>s+(p[1].totalTimeMs||0),0);
+  const avgTime=prods.length>0?(totalTimeMs/Math.max(totalViews,1)/1000).toFixed(1):0;
+  const topProd=prods[0]?prods[0][1].name||prods[0][0]:'—';
+  document.getElementById('pe-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fce4ec">&#x1F4F1;</div><div class="stat-card-num">${totalViews}</div><div class="stat-card-lbl">Product Page Views</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e8f5e9">&#x23F1;&#xFE0F;</div><div class="stat-card-num">${fmtTime(totalTimeMs)}</div><div class="stat-card-lbl">Total Time on Products</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#e3f2fd">&#x1F4CA;</div><div class="stat-card-num">${avgTime}s</div><div class="stat-card-lbl">Avg. Time / View</div></div>
+    <div class="stat-card"><div class="stat-card-ico" style="background:#fff3e0">&#x1F3C6;</div><div class="stat-card-num" style="font-size:1rem">${topProd.slice(0,20)}</div><div class="stat-card-lbl">Most Engaged Product</div></div>
+  `;
+  const maxTime=Math.max(...prods.map(p=>p[1].totalTimeMs||0),1);
+  document.getElementById('product-time-chart').innerHTML=prods.slice(0,10).map(([id,d])=>`
+    <div class="bar-row">
+      <div class="bar-label">${d.name||id}</div>
+      <div class="bar-track"><div class="bar-fill time-fill" style="width:${Math.round(((d.totalTimeMs||0)/maxTime)*100)}%"></div></div>
+      <div class="bar-val">${fmtTime(d.totalTimeMs||0)}</div>
+    </div>`).join('')||'<div style="padding:1.5rem;text-align:center;color:var(--mu);font-size:.82rem">No product engagement data yet.</div>';
+  // Table
+  document.getElementById('engage-tbody').innerHTML=prods.map(([id,d])=>{
+    const avg=d.views>0?((d.totalTimeMs||0)/d.views/1000).toFixed(1):0;
+    const eng=avg>30?'High':avg>10?'Medium':'Low';
+    const engColor=eng==='High'?'green':eng==='Medium'?'amber':'red';
+    return `<tr>
+      <td><strong>${d.name||id}</strong><br><span style="font-size:.65rem;color:var(--mu2)">${id}</span></td>
+      <td>${d.views||0}</td>
+      <td>${fmtTime(d.totalTimeMs||0)}</td>
+      <td>${avg}s</td>
+      <td><span class="badge ${engColor}">${eng}</span></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--mu)">No product view data yet — visit products on the store to track.</td></tr>';
+}
+
+function fmtTime(ms){
+  const s=Math.floor(ms/1000);
+  if(s<60)return s+'s';
+  const m=Math.floor(s/60),rem=s%60;
+  return m+'m '+(rem?rem+'s':'');
+}
+
+/* ─ PRODUCTS MANAGEMENT ─ */
+let allProducts=[];
+function buildAllProducts(){
+  const snap=getProductsSnapshot();
+  const deleted=getDeletedP();
+  if(snap.length){
+    allProducts=snap.map(p=>({...p,deleted:deleted.includes(p.id)}));
+  } else {
+    const custom=getAdminP();
+    allProducts=[];
+    Object.keys(CATS).forEach(k=>{
+      if(custom[k])custom[k].forEach(p=>allProducts.push({...p,catKey:k,isCustom:true,deleted:deleted.includes(p.id)}));
+    });
+  }
+}
+function getAdminP(){try{return JSON.parse(localStorage.getItem('oxfox_admin_products'))||{};}catch(e){return {};}}
+function getDeletedP(){try{return JSON.parse(localStorage.getItem('oxfox_deleted_products'))||[];}catch(e){return [];}}
+function getProductsSnapshot(){try{return JSON.parse(localStorage.getItem('oxfox_all_products'))||[];}catch(e){return [];}}
+function getProductOverrides(){try{return JSON.parse(localStorage.getItem('oxfox_product_overrides'))||{};}catch(e){return {};}}
+
+function populateCatFilters(){
+  const sel=document.getElementById('prod-filter-cat');
+  Object.entries(CATS).forEach(([k,v])=>{
+    const o=document.createElement('option');o.value=k;o.textContent=v.icon+' '+v.name;sel.appendChild(o);
+  });
+}
+
+function renderProducts(){
+  buildAllProducts();
+  const deleted=getDeletedP();
+  const snap=getProductsSnapshot();
+  const builtIn=allProducts.filter(p=>!p.isCustom).length;
+  const cust=allProducts.filter(p=>p.isCustom).length;
+  document.getElementById('prod-count-lbl').textContent=snap.length
+    ?(allProducts.length+' products · '+builtIn+' built-in · '+cust+' custom · '+deleted.length+' hidden')
+    :(cust+' custom · '+deleted.length+' hidden — open the store in another tab first to sync all products');
+  renderProductTable(allProducts);
+}
+
+function renderProductTable(list){
+  document.getElementById('products-tbody').innerHTML=list.length?list.map(p=>`
+    <tr>
+      <td><div class="prod-table-img">${p.img?`<img src="${p.img}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" onerror="this.parentElement.textContent='${p.e||'📦'}'">`:p.e||'📦'}</div></td>
+      <td><strong style="font-size:.9rem">${p.n}</strong> <span class="badge ${p.isCustom?'blue':'green'}" style="font-size:.5rem;vertical-align:middle;padding:2px 6px">${p.isCustom?'Custom':'Built-in'}</span><br><span style="font-size:.65rem;color:var(--mu2)">${p.id}</span></td>
+      <td>${CATS[p.catKey]?CATS[p.catKey].icon+' '+CATS[p.catKey].name:p.catKey}</td>
+      <td>${p.mat||'Silicone'}</td>
+      <td>₹${(p.p||0).toLocaleString('en-IN')}${p.m&&p.m!==p.p?`<br><span style="font-size:.65rem;color:var(--mu2);text-decoration:line-through">₹${p.m.toLocaleString('en-IN')}</span>`:''}
+      </td>
+      <td>${(()=>{const pd=getProductDiscounts();const tiers=pd[p.id];if(tiers&&tiers.length){const lowest=tiers.reduce((a,b)=>a.minQty<b.minQty?a:b);return `<span class="badge green">${lowest.minQty}+ → ${lowest.pct}% off</span>`;}return '<span style="color:var(--mu2);font-size:.75rem">—</span>';})()}</td>
+      <td>${p.b?`<span class="badge ${p.b==='new'?'blue':'amber'}">${p.b==='new'?'New':'Best'}</span>`:'<span style="color:var(--mu2);font-size:.75rem">—</span>'}</td>
+      <td>
+        <div style="display:flex;gap:.4rem">
+          <button class="btn btn-outline btn-sm btn-icon" onclick="openEditModal('${p.id}')" title="Edit">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDelete('${p.id}','${p.n}')" title="Delete">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`).join(''):'<tr><td colspan="8" style="text-align:center;padding:2.5rem;color:var(--mu);font-size:.85rem">No products found.<br><span style="font-size:.75rem;color:var(--mu2)">Open the store in another browser tab first, then refresh this page to sync all products.</span></td></tr>';
+}
+
+function filterProductTable(q){
+  const cat=document.getElementById('prod-filter-cat').value;
+  let list=allProducts.filter(p=>{
+    const matchQ=!q||p.n.toLowerCase().includes(q.toLowerCase())||p.id.toLowerCase().includes(q.toLowerCase());
+    const matchC=!cat||p.catKey===cat;
+    return matchQ&&matchC;
+  });
+  renderProductTable(list);
+}
+
+function toggleAddForm(){
+  const f=document.getElementById('add-product-form');
+  f.classList.toggle('open');
+  if(f.classList.contains('open'))f.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ─ IMAGE FILE PICKER ─ */
+function pickImage(inputId,thumbId){
+  const picker=document.createElement('input');
+  picker.type='file';
+  picker.accept='image/*';
+  picker.style.display='none';
+  document.body.appendChild(picker);
+  picker.onchange=function(){
+    const file=picker.files[0];
+    if(!file){document.body.removeChild(picker);return;}
+    if(file.size>2*1024*1024){aToast('Image too large — please use a file under 2 MB');document.body.removeChild(picker);return;}
+    const reader=new FileReader();
+    reader.onload=function(e){
+      const dataUrl=e.target.result;
+      const inp=document.getElementById(inputId);
+      if(inp)inp.value=dataUrl;
+      const thumb=document.getElementById(thumbId);
+      if(thumb){thumb.src=dataUrl;thumb.style.display='block';}
+      document.body.removeChild(picker);
+    };
+    reader.readAsDataURL(file);
+  };
+  picker.click();
+}
+
+/* ─ PRODUCT DISCOUNT TIER HELPERS ─ */
+function getProductDiscounts(){try{return JSON.parse(localStorage.getItem('oxfox_product_discounts'))||{};}catch(e){return {};}}
+function collectProdTiers(containerId){
+  const tiers=[];
+  document.querySelectorAll('#'+containerId+' .dc-tier').forEach(row=>{
+    const qty=parseInt(row.querySelector('.dc-qty').value);
+    const pct=parseInt(row.querySelector('.dc-pct').value);
+    if(qty>0&&pct>0)tiers.push({minQty:qty,pct});
+  });
+  return tiers.sort((a,b)=>a.minQty-b.minQty);
+}
+function addProdTierTo(containerId){
+  const container=document.getElementById(containerId);
+  const div=document.createElement('div');
+  div.className='dc-tier';
+  div.innerHTML=`<span style="font-size:.68rem;color:var(--mu);white-space:nowrap">Min</span><input type="number" class="dc-qty" min="1" placeholder="Qty"><span class="dc-tier-sep">units &rarr;</span><input type="number" class="dc-pct" min="1" max="99" placeholder="%"><span style="font-size:.68rem;color:var(--mu)">% OFF</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--mu2);font-size:1rem;padding:2px;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu2)'">&times;</button>`;
+  container.appendChild(div);
+}
+function renderProdTierEditor(containerId,tiers){
+  const container=document.getElementById(containerId);
+  if(!container)return;
+  container.innerHTML='';
+  (tiers||[]).forEach(t=>{
+    const div=document.createElement('div');
+    div.className='dc-tier';
+    div.innerHTML=`<span style="font-size:.68rem;color:var(--mu);white-space:nowrap">Min</span><input type="number" class="dc-qty" value="${t.minQty||1}" min="1"><span class="dc-tier-sep">units &rarr;</span><input type="number" class="dc-pct" value="${t.pct||0}" min="1" max="99"><span style="font-size:.68rem;color:var(--mu)">% OFF</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--mu2);font-size:1rem;padding:2px;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu2)'">&times;</button>`;
+    container.appendChild(div);
+  });
+}
+
+function saveNewProduct(){
+  const name=document.getElementById('ap-name').value.trim();
+  const cat=document.getElementById('ap-cat').value;
+  const mat=document.getElementById('ap-mat').value.trim()||'Silicone';
+  const filter=document.getElementById('ap-filter').value.trim()||'All';
+  const price=parseInt(document.getElementById('ap-price').value)||0;
+  const mrp=parseInt(document.getElementById('ap-mrp').value)||0;
+  const badge=document.getElementById('ap-badge').value||null;
+  const emoji=document.getElementById('ap-emoji').value||'📦';
+  const tiers=collectProdTiers('ap-prod-tiers');
+  const imgs=[];
+  for(let i=1;i<=6;i++){const v=document.getElementById('ap-img'+i).value.trim();if(v)imgs.push(v);}
+  const img=imgs[0]||'';
+  const desc=document.getElementById('ap-desc').value.trim();
+  if(!name){aToast('Product Name is required');return;}
+  if(!price||!mrp){aToast('Price and MRP are required (must be greater than 0)');return;}
+  if(!desc){aToast('Description is required');return;}
+  const custom=getAdminP();
+  if(!custom[cat])custom[cat]=[];
+  const id='adm-'+Date.now();
+  const prod={id,n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
+  if(imgs.length>1)prod.imgs=imgs;
+  custom[cat].push(prod);
+  try{
+    localStorage.setItem('oxfox_admin_products',JSON.stringify(custom));
+  }catch(err){
+    aToast('Save failed: storage full. Use smaller images or clear browser data.');
+    return;
+  }
+  if(tiers.length){try{const pd=getProductDiscounts();pd[id]=tiers;localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));}catch(e){}}
+  aToast('Product "'+name+'" added successfully!');
+  toggleAddForm();
+  ['ap-name','ap-filter','ap-price','ap-mrp','ap-desc'].forEach(fid=>{document.getElementById(fid).value='';});
+  document.getElementById('ap-prod-tiers').innerHTML='';
+  for(let i=1;i<=6;i++){document.getElementById('ap-img'+i).value='';const t=document.getElementById('ap-thumb'+i);if(t){t.src='';t.style.display='none';}}
+  document.getElementById('ap-badge').value='';
+  document.getElementById('ap-emoji').value='🛍️';
+  renderProducts();
+}
+
+/* ─ EDIT ─ */
+function openEditModal(id){
+  const p=allProducts.find(pr=>pr.id===id);
+  if(!p)return;
+  document.getElementById('ep-id').value=p.id;
+  document.getElementById('ep-cat-key').value=p.catKey;
+  document.getElementById('ep-name').value=p.n||'';
+  document.getElementById('ep-cat').value=p.catKey||'candles';
+  document.getElementById('ep-mat').value=p.mat||'Silicone';
+  document.getElementById('ep-filter').value=p.f||'';
+  document.getElementById('ep-price').value=p.p||'';
+  document.getElementById('ep-mrp').value=p.m||'';
+  document.getElementById('ep-badge').value=p.b||'';
+  document.getElementById('ep-emoji').value=p.e||'📦';
+  const isCustom=p.isCustom||id.startsWith('adm-');
+  const catEl=document.getElementById('ep-cat');
+  catEl.disabled=!isCustom;
+  catEl.title=isCustom?'':'Category is fixed for built-in products';
+  const imgs=p.imgs&&p.imgs.length?p.imgs:[p.img||''];
+  for(let i=1;i<=6;i++){
+    const val=imgs[i-1]||'';
+    document.getElementById('ep-img'+i).value=val;
+    const thumb=document.getElementById('ep-thumb'+i);
+    if(thumb){thumb.src=val;thumb.style.display=val?'block':'none';}
+  }
+  document.getElementById('ep-desc').value=p.desc||'';
+  renderProdTierEditor('ep-prod-tiers',(getProductDiscounts())[p.id]||[]);
+  document.getElementById('edit-modal').classList.add('open');
+}
+function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');}
+function saveEditProduct(){
+  const id=document.getElementById('ep-id').value;
+  const origCat=document.getElementById('ep-cat-key').value;
+  const newCat=document.getElementById('ep-cat').value;
+  const name=document.getElementById('ep-name').value.trim();
+  const mat=document.getElementById('ep-mat').value.trim()||'Silicone';
+  const filter=document.getElementById('ep-filter').value.trim()||'All';
+  const price=parseInt(document.getElementById('ep-price').value)||0;
+  const mrp=parseInt(document.getElementById('ep-mrp').value)||0;
+  const badge=document.getElementById('ep-badge').value||null;
+  const emoji=document.getElementById('ep-emoji').value||'📦';
+  const tiers=collectProdTiers('ep-prod-tiers');
+  const imgs=[];
+  for(let i=1;i<=6;i++){const v=document.getElementById('ep-img'+i).value.trim();if(v)imgs.push(v);}
+  const img=imgs[0]||'';
+  const desc=document.getElementById('ep-desc').value.trim();
+  if(!name){aToast('Product Name is required');return;}
+  if(!price||!mrp){aToast('Price and MRP are required (must be greater than 0)');return;}
+  if(!desc){aToast('Description is required');return;}
+  const isBuiltIn=!id.startsWith('adm-');
+  const updated={id,n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
+  if(imgs.length>1)updated.imgs=imgs;
+  if(isBuiltIn){
+    const ov=getProductOverrides();
+    ov[id]={n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
+    if(imgs.length>1)ov[id].imgs=imgs;
+    try{localStorage.setItem('oxfox_product_overrides',JSON.stringify(ov));}
+    catch(err){aToast('Save failed: storage full. Use smaller images or clear browser data.');return;}
+    // Update snapshot so table refreshes immediately
+    const snap=getProductsSnapshot();
+    const si=snap.findIndex(p=>p.id===id);
+    if(si>=0){snap[si]={...snap[si],...updated};try{localStorage.setItem('oxfox_all_products',JSON.stringify(snap));}catch(e){}}
+  } else {
+    const custom=getAdminP();
+    if(custom[origCat])custom[origCat]=custom[origCat].filter(p=>p.id!==id);
+    if(!custom[newCat])custom[newCat]=[];
+    custom[newCat].push(updated);
+    try{localStorage.setItem('oxfox_admin_products',JSON.stringify(custom));}
+    catch(err){aToast('Save failed: storage full. Use smaller images or clear browser data.');return;}
+    // Update snapshot for custom product too
+    const snap=getProductsSnapshot();
+    const si=snap.findIndex(p=>p.id===id);
+    if(si>=0){snap[si]={...snap[si],...updated,catKey:newCat};try{localStorage.setItem('oxfox_all_products',JSON.stringify(snap));}catch(e){}}
+  }
+  try{const pd=getProductDiscounts();if(tiers.length)pd[id]=tiers;else delete pd[id];localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));}catch(e){}
+  aToast('Product updated!');
+  closeEditModal();
+  renderProducts();
+}
+
+/* ─ DELETE ─ */
+let _deleteId=null;
+function confirmDelete(id,name){
+  _deleteId=id;
+  document.getElementById('confirm-title').textContent='Delete "'+name+'"?';
+  document.getElementById('confirm-msg').textContent='This will permanently remove "'+name+'" from the store. Customers will no longer see this product.';
+  document.getElementById('confirm-ok').onclick=()=>{doDelete(_deleteId);closeConfirm();};
+  document.getElementById('confirm-modal').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirm-modal').classList.remove('open');}
+function doDelete(id){
+  // Remove from admin products
+  const custom=getAdminP();
+  Object.keys(custom).forEach(k=>{custom[k]=custom[k].filter(p=>p.id!==id);});
+  localStorage.setItem('oxfox_admin_products',JSON.stringify(custom));
+  // Also add to deleted list (to hide built-in products)
+  const deleted=getDeletedP();
+  if(!deleted.includes(id)){deleted.push(id);localStorage.setItem('oxfox_deleted_products',JSON.stringify(deleted));}
+  aToast('Product deleted from store');
+  renderProducts();
+}
+
+/* ─ DISCOUNTS ─ */
+function getDiscounts(){try{return JSON.parse(localStorage.getItem('oxfox_category_discounts'))||{};}catch(e){return {};}}
+function renderDiscounts(){
+  const saved=getDiscounts();
+  document.getElementById('discount-grid').innerHTML=Object.entries(CATS).map(([k,v])=>{
+    const tiers=saved[k]||[];
+    const tiersHTML=tiers.map((t,i)=>`
+      <div class="dc-tier" data-cat="${k}" data-idx="${i}">
+        <span style="font-size:.68rem;color:var(--mu);white-space:nowrap">Min</span>
+        <input type="number" class="dc-qty" value="${t.minQty||0}" min="1" placeholder="Qty">
+        <span class="dc-tier-sep">products &rarr;</span>
+        <input type="number" class="dc-pct" value="${t.pct||0}" min="1" max="99" placeholder="%">
+        <span style="font-size:.68rem;color:var(--mu)">% OFF</span>
+        <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--mu2);font-size:1rem;padding:2px;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu2)'">&times;</button>
+      </div>`).join('');
+    return `<div class="dc-cat">
+      <div class="dc-cat-head"><span class="dc-cat-ico">${v.icon}</span><span class="dc-cat-name">${v.name}</span></div>
+      <div class="dc-tiers" id="dc-tiers-${k}">${tiersHTML}</div>
+      <div style="padding:0 1.25rem .875rem">
+        <button class="dc-add" onclick="addTier('${k}')">+ Add Tier</button>
+      </div>
+    </div>`;
+  }).join('');
+  renderProductDiscounts();
+}
+function addTier(cat){
+  const tiers=document.getElementById('dc-tiers-'+cat);
+  const div=document.createElement('div');
+  div.className='dc-tier';div.dataset.cat=cat;
+  div.innerHTML=`<span style="font-size:.68rem;color:var(--mu);white-space:nowrap">Min</span><input type="number" class="dc-qty" value="" min="1" placeholder="Qty"><span class="dc-tier-sep">products &rarr;</span><input type="number" class="dc-pct" value="" min="1" max="99" placeholder="%"><span style="font-size:.68rem;color:var(--mu)">% OFF</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--mu2);font-size:1rem;padding:2px;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu2)'">&times;</button>`;
+  tiers.appendChild(div);
+}
+function saveAllDiscounts(){
+  const result={};
+  Object.keys(CATS).forEach(k=>{
+    const tiers=[];
+    document.querySelectorAll(`#dc-tiers-${k} .dc-tier`).forEach(row=>{
+      const qty=parseInt(row.querySelector('.dc-qty').value);
+      const pct=parseInt(row.querySelector('.dc-pct').value);
+      if(qty>0&&pct>0)tiers.push({minQty:qty,pct});
+    });
+    if(tiers.length)result[k]=tiers.sort((a,b)=>a.minQty-b.minQty);
+  });
+  localStorage.setItem('oxfox_category_discounts',JSON.stringify(result));
+  aToast('Category discounts saved!');
+}
+
+/* ─ PER-PRODUCT DISCOUNTS ─ */
+function renderProductDiscounts(){
+  const pd=getProductDiscounts();
+  const entries=Object.entries(pd);
+  const grid=document.getElementById('prod-discount-grid');
+  if(!grid)return;
+  if(!entries.length){
+    grid.innerHTML='<div style="padding:1.5rem;color:var(--mu);font-size:.82rem;grid-column:1/-1">No per-product discount rules set. Use the "Add Rule" button below to add one.</div>';
+  } else {
+    grid.innerHTML=entries.map(([prodId,tiers])=>{
+      const prod=allProducts.find(p=>p.id===prodId);
+      const prodName=prod?prod.n:prodId;
+      const tiersHTML=(tiers||[]).map((t,i)=>`
+        <div class="dc-tier">
+          <span style="font-size:.68rem;color:var(--mu);white-space:nowrap">Min</span>
+          <input type="number" class="dc-qty" value="${t.minQty||1}" min="1" placeholder="Qty">
+          <span class="dc-tier-sep">units &rarr;</span>
+          <input type="number" class="dc-pct" value="${t.pct||0}" min="1" max="99" placeholder="%">
+          <span style="font-size:.68rem;color:var(--mu)">% OFF</span>
+          <button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;color:var(--mu2);font-size:1rem;padding:2px;transition:color .2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--mu2)'">&times;</button>
+        </div>`).join('');
+      return `<div class="dc-cat" data-prod-id="${prodId}">
+        <div class="dc-cat-head"><span class="dc-cat-ico">${prod?.e||'📦'}</span><span class="dc-cat-name" style="font-size:.75rem">${prodName}</span></div>
+        <div class="dc-tiers" id="pdt-${prodId}">${tiersHTML}</div>
+        <div style="padding:0 1.25rem .875rem;display:flex;gap:.5rem;align-items:center">
+          <button class="dc-add" style="flex:1" onclick="addProdTierTo('pdt-${prodId}')">+ Add Tier</button>
+          <button onclick="removeProdDiscount('${prodId}')" style="background:none;border:1.5px dashed #ffcdd2;color:var(--red);border-radius:4px;padding:6px 10px;font-size:.6rem;letter-spacing:.08em;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">Remove</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  // Populate product select for adding new rules
+  const sel=document.getElementById('pd-prod-select');
+  if(sel){
+    sel.innerHTML='<option value="">Select a product to add discount rule&hellip;</option>';
+    allProducts.filter(p=>!pd[p.id]).forEach(p=>{
+      const opt=document.createElement('option');
+      opt.value=p.id;
+      opt.textContent=p.n+(p.id?' ('+p.id+')':'');
+      sel.appendChild(opt);
+    });
+  }
+}
+function addProdDiscountRule(){
+  const sel=document.getElementById('pd-prod-select');
+  if(!sel||!sel.value){aToast('Please select a product first');return;}
+  const pd=getProductDiscounts();
+  if(!pd[sel.value])pd[sel.value]=[{minQty:2,pct:10}];
+  localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));
+  renderProductDiscounts();
+}
+function removeProdDiscount(prodId){
+  const pd=getProductDiscounts();
+  delete pd[prodId];
+  localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));
+  renderProductDiscounts();
+}
+function saveAllProductDiscounts(){
+  const pd={};
+  document.querySelectorAll('#prod-discount-grid [data-prod-id]').forEach(card=>{
+    const prodId=card.dataset.prodId;
+    const tiers=[];
+    card.querySelectorAll('.dc-tier').forEach(row=>{
+      const qty=parseInt(row.querySelector('.dc-qty').value);
+      const pct=parseInt(row.querySelector('.dc-pct').value);
+      if(qty>0&&pct>0)tiers.push({minQty:qty,pct});
+    });
+    if(tiers.length)pd[prodId]=tiers.sort((a,b)=>a.minQty-b.minQty);
+  });
+  localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));
+  aToast('Product discounts saved!');
+  renderProductTable(allProducts);
+}
+
+/* ─ EXPORT ─ */
+function exportData(){
+  const data={analytics:getA(),products:getAdminP(),deleted:getDeletedP(),discounts:getDiscounts(),productDiscounts:getProductDiscounts(),exported:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='oxfox-data-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  aToast('Data exported as JSON');
+}
+
+/* ─ TOAST ─ */
+function aToast(msg){
+  const t=document.getElementById('a-toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>
