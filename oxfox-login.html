@@ -9,7 +9,7 @@
 body{min-height:100vh;display:flex;flex-direction:column}
 
 /* ── NAV ── */
-#nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--pk2);border-bottom:1px solid var(--brd);padding:0 3rem;height:72px;display:flex;align-items:center;justify-content:space-between}
+#nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid #E5E7EB;box-shadow:0 1px 12px rgba(0,0,0,.06);padding:0 3rem;height:68px;display:flex;align-items:center;justify-content:space-between}
 
 /* ── MAIN LAYOUT ── */
 .auth-wrapper{flex:1;display:flex;align-items:center;justify-content:center;padding:100px 1.5rem 3rem;background:radial-gradient(ellipse at 50% 30%,var(--mr3) 0%,var(--pk) 65%)}
@@ -19,13 +19,13 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .auth-header{background:var(--mr3);padding:2.5rem 2.5rem 2rem;text-align:center;position:relative;overflow:hidden}
 .auth-header::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04)}
 .auth-header::after{content:'';position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.03)}
-.auth-brand{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--wh);letter-spacing:.06em;position:relative;z-index:1}
+.auth-brand{font-family:'Outfit',sans-serif;font-size:2rem;font-weight:700;color:var(--wh);letter-spacing:.06em;position:relative;z-index:1}
 .auth-brand-sub{font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-top:.25rem;position:relative;z-index:1}
 .auth-tagline{font-size:.8rem;color:rgba(255,255,255,.6);margin-top:.75rem;line-height:1.6;position:relative;z-index:1}
 
 /* ── TABS ── */
 .auth-tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid var(--brd)}
-.tab-btn{padding:1rem;font-family:'Poppins',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;background:none;border:none;cursor:pointer;color:var(--mu);transition:all .3s;position:relative}
+.tab-btn{padding:1rem;font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;background:none;border:none;cursor:pointer;color:var(--mu);transition:all .3s;position:relative}
 .tab-btn.active{color:var(--mr);background:var(--pk4)}
 .tab-btn.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2.5px;background:var(--mr)}
 .tab-btn:hover:not(.active){background:var(--pk3);color:var(--tx)}
@@ -40,7 +40,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .form-extras{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
 .remember-wrap{display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.72rem;color:var(--mu)}
 .remember-wrap input{accent-color:var(--mr);width:14px;height:14px;cursor:pointer}
-.forgot-btn{background:none;border:none;cursor:pointer;font-size:.72rem;color:var(--mr);font-family:'Poppins',sans-serif;font-weight:600;transition:opacity .25s;padding:0}
+.forgot-btn{background:none;border:none;cursor:pointer;font-size:.72rem;color:var(--mr);font-family:'Inter',sans-serif;font-weight:600;transition:opacity .25s;padding:0}
 .forgot-btn:hover{opacity:.7;text-decoration:underline}
 
 /* terms */
@@ -57,30 +57,30 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .auth-divider span{font-size:.62rem;color:var(--mu2);text-transform:uppercase;letter-spacing:.15em;white-space:nowrap}
 
 /* whatsapp sign-in */
-.btn-wa{width:100%;padding:13px;background:transparent;color:#25D366;border:1.5px solid #25D366;border-radius:var(--r);font-family:'Poppins',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:all .3s}
+.btn-wa{width:100%;padding:13px;background:transparent;color:#25D366;border:1.5px solid #25D366;border-radius:var(--r);font-family:'Inter',sans-serif;font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;transition:all .3s}
 .btn-wa:hover{background:#25D366;color:var(--wh)}
 
 /* switch prompt */
 .switch-prompt{text-align:center;margin-top:1.5rem;font-size:.75rem;color:var(--mu)}
-.switch-prompt button{background:none;border:none;color:var(--mr);font-family:'Poppins',sans-serif;font-weight:700;cursor:pointer;font-size:.75rem;transition:opacity .25s;padding:0}
+.switch-prompt button{background:none;border:none;color:var(--mr);font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;font-size:.75rem;transition:opacity .25s;padding:0}
 .switch-prompt button:hover{opacity:.7;text-decoration:underline}
 
 /* success state */
 .success-panel{display:none;text-align:center;padding:1.5rem 0}
 .success-panel.show{display:block}
 .success-icon{font-size:3rem;margin-bottom:1rem}
-.success-title{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
+.success-title{font-family:'Outfit',sans-serif;font-size:1.8rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
 .success-sub{font-size:.82rem;color:var(--mu);line-height:1.7;margin-bottom:1.5rem}
 .success-uid{display:inline-block;background:var(--pk);border:1.5px solid var(--brd);border-radius:8px;padding:.75rem 1.5rem;margin-bottom:1.5rem}
 .uid-label{font-size:.55rem;letter-spacing:.28em;text-transform:uppercase;color:var(--mu);margin-bottom:.3rem}
-.uid-value{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--mr);letter-spacing:.08em}
+.uid-value{font-family:'Outfit',sans-serif;font-size:1.3rem;font-weight:700;color:var(--mr);letter-spacing:.08em}
 
 /* forgot password overlay */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(60,8,8,.55);display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;visibility:hidden;transition:all .3s var(--ease)}
 .overlay.show{opacity:1;visibility:visible}
 .overlay-card{background:var(--pk3);border-radius:16px;padding:2.5rem;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(230,139,110,.2);transform:translateY(20px);transition:transform .35s var(--ease)}
 .overlay.show .overlay-card{transform:translateY(0)}
-.overlay-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
+.overlay-title{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:700;color:var(--tx);margin-bottom:.5rem}
 .overlay-sub{font-size:.8rem;color:var(--mu);margin-bottom:1.5rem;line-height:1.6}
 .overlay-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--mu);padding:4px;border-radius:50%;transition:all .2s}
 .overlay-close:hover{background:var(--pk2);color:var(--tx)}
@@ -90,9 +90,9 @@ body{min-height:100vh;display:flex;flex-direction:column}
 
 /* user info banner (after login) */
 .user-banner{background:var(--mr3);color:var(--wh);padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
-.user-banner-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700}
+.user-banner-name{font-family:'Outfit',sans-serif;font-size:1.1rem;font-weight:700}
 .user-banner-uid{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-top:.15rem}
-.btn-signout{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--wh);padding:8px 18px;border-radius:6px;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;font-family:'Poppins',sans-serif;font-weight:700;cursor:pointer;transition:all .3s}
+.btn-signout{background:transparent;border:1px solid rgba(255,255,255,.3);color:var(--wh);padding:8px 18px;border-radius:6px;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;transition:all .3s}
 .btn-signout:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.5)}
 
 /* ── RESPONSIVE ── */
@@ -110,11 +110,11 @@ body{min-height:100vh;display:flex;flex-direction:column}
 
 <!-- NAV -->
 <nav id="nav">
-  <a class="nav-logo-wrap" href="/">
+  <a class="nav-logo-wrap" href="oxfox-studio.html">
     <img src="Logo.png" alt="Oxfox Studio">
     <span class="nav-tagline">Premium Silicone Molds</span>
   </a>
-  <a class="nav-back" href="/">
+  <a class="nav-back" href="oxfox-studio.html">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     Back to Shop
   </a>
@@ -145,7 +145,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
           <div class="success-icon">👋</div>
           <div class="success-title">Welcome back!</div>
           <p class="success-sub" id="login-welcome-msg">You are now signed in.</p>
-          <a href="/" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Go to Shop &rarr;</a>
+          <a href="oxfox-studio.html" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Go to Shop &rarr;</a>
         </div>
 
         <div id="login-form-inner">
@@ -209,7 +209,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
             <div class="uid-value" id="new-uid">OXF-000000</div>
           </div>
           <p style="font-size:.72rem;color:var(--mu);margin-bottom:1.5rem">Save this ID — you'll need it to track orders and access member benefits.</p>
-          <a href="/" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Start Shopping &rarr;</a>
+          <a href="oxfox-studio.html" class="btn-submit" style="display:inline-block;text-decoration:none;margin-bottom:.75rem;padding:14px 32px;width:auto">Start Shopping &rarr;</a>
         </div>
 
         <div id="register-form-inner">
@@ -396,7 +396,7 @@ function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
 function isValidPhone(v){return /^[+]?[\d\s\-().]{10,15}$/.test(v.replace(/\s/g,''));}
 
 // ── USER STORE (localStorage + Django API) ──────────
-const API_BASE='http://localhost:8000/api';
+const API_BASE='http://localhost:8006/api';
 async function apiPost(path,body){
   try{
     const res=await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
