@@ -188,6 +188,92 @@ body{min-height:100vh;display:flex;flex-direction:column}
 .confirm-box h3{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.75rem}
 .confirm-box p{font-size:.85rem;color:var(--mu);line-height:1.7;margin-bottom:1.5rem}
 .confirm-btns{display:flex;gap:.75rem;justify-content:center}
+
+/* ── HAMBURGER (hidden on desktop) ── */
+.sb-toggle{display:none;align-items:center;justify-content:center;width:38px;height:38px;background:none;border:1.5px solid #E5E7EB;border-radius:8px;cursor:pointer;flex-shrink:0;transition:background .2s}
+.sb-toggle:hover{background:#F4F5F7}
+.sb-toggle span{display:block;width:16px;height:2px;background:#374151;border-radius:2px;position:relative;transition:all .3s}
+.sb-toggle span::before,.sb-toggle span::after{content:'';position:absolute;left:0;width:16px;height:2px;background:#374151;border-radius:2px;transition:all .3s}
+.sb-toggle span::before{top:-5px}
+.sb-toggle span::after{top:5px}
+.sb-toggle.open span{background:transparent}
+.sb-toggle.open span::before{transform:rotate(45deg);top:0}
+.sb-toggle.open span::after{transform:rotate(-45deg);top:0}
+
+/* sidebar overlay for mobile */
+#sb-overlay{display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.4);backdrop-filter:blur(2px)}
+#sb-overlay.show{display:block}
+
+/* ── TABLE SCROLL WRAPPER ── */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  :root{--sidebar:240px}
+
+  /* sidebar off-screen by default */
+  #sidebar{transform:translateX(-100%);transition:transform .3s cubic-bezier(.22,1,.36,1);z-index:200}
+  #sidebar.open{transform:translateX(0)}
+
+  /* main fills full width */
+  #main{margin-left:0}
+
+  /* show hamburger */
+  .sb-toggle{display:flex}
+
+  /* top-bar tighter */
+  .top-bar{padding:.875rem 1rem;height:auto;gap:.75rem}
+  .top-bar-right .admin-badge{display:none}
+
+  /* content padding */
+  .content{padding:1.25rem 1rem}
+
+  /* stats: 2 cols on tablet */
+  .stats-row{grid-template-columns:repeat(2,1fr);gap:1rem}
+
+  /* grids → single column */
+  .funnel{grid-template-columns:repeat(2,1fr)}
+  .form-grid-2{grid-template-columns:1fr}
+  .discount-grid{grid-template-columns:1fr}
+  .prod-disc-grid{grid-template-columns:1fr}
+
+  /* dashboard 2-col → 1-col */
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+
+  /* bar chart label shorter */
+  .bar-label{min-width:100px}
+
+  /* login box */
+  .login-box{padding:2rem 1.5rem}
+
+  /* edit modal */
+  #edit-modal{padding:.75rem}
+  .edit-box{padding:1.25rem;border-radius:10px}
+}
+
+@media(max-width:480px){
+  /* stats → 1 col on phone */
+  .stats-row{grid-template-columns:1fr}
+  .funnel{grid-template-columns:repeat(2,1fr)}
+  .stat-card-num{font-size:1.8rem}
+
+  /* top-bar title smaller */
+  .top-bar-title{font-size:1.1rem}
+
+  /* content padding tighter */
+  .content{padding:1rem .75rem}
+
+  /* calendar cells smaller */
+  .cal-cell{min-height:30px;font-size:.58rem}
+  .cal-dow{font-size:.48rem}
+
+  /* bar label shorter */
+  .bar-label{min-width:72px;font-size:.65rem}
+
+  /* products toolbar stack */
+  .products-toolbar{flex-direction:column;align-items:stretch}
+  .products-toolbar .f-input{max-width:100%}
+}
 </style>
 </head>
 <body>
@@ -220,6 +306,7 @@ body{min-height:100vh;display:flex;flex-direction:column}
 </div>
 
 <!-- ADMIN APP -->
+<div id="sb-overlay" onclick="toggleSidebar()"></div>
 <div id="admin-app" class="hidden">
   <!-- SIDEBAR -->
   <aside id="sidebar">
@@ -263,7 +350,10 @@ body{min-height:100vh;display:flex;flex-direction:column}
   <!-- MAIN CONTENT -->
   <main id="main">
     <div class="top-bar">
-      <div>
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <button class="sb-toggle" id="sb-toggle" onclick="toggleSidebar()" aria-label="Menu">
+          <span></span>
+        </button>
         <div class="top-bar-title" id="view-title">Dashboard</div>
       </div>
       <div class="top-bar-right">
@@ -322,12 +412,14 @@ body{min-height:100vh;display:flex;flex-direction:column}
         </div>
         <div class="card" style="margin-top:1.5rem">
           <div class="card-header"><div class="card-title">Full Product Engagement Report</div></div>
+          <div class="table-scroll">
           <table class="table" id="product-engage-table">
             <thead><tr>
               <th>Product</th><th>Views</th><th>Total Time</th><th>Avg. Time / View</th><th>Engagement</th>
             </tr></thead>
             <tbody id="engage-tbody"></tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -404,12 +496,14 @@ body{min-height:100vh;display:flex;flex-direction:column}
           <div class="card-header">
             <div><div class="card-title">All Products</div><div class="card-sub" id="prod-count-lbl"></div></div>
           </div>
+          <div class="table-scroll">
           <table class="table">
             <thead><tr>
               <th></th><th>Product</th><th>Category</th><th>Material</th><th>Price</th><th>Discount</th><th>Badge</th><th>Actions</th>
             </tr></thead>
             <tbody id="products-tbody"></tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -592,6 +686,20 @@ function doAdminLogin(){
     err.style.display = 'block';
   }
 }
+function toggleSidebar(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sb-overlay');
+  const btn = document.getElementById('sb-toggle');
+  sb.classList.toggle('open');
+  ov.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sb-overlay').classList.remove('show');
+  document.getElementById('sb-toggle').classList.remove('open');
+}
+
 function adminLogout(){
   localStorage.removeItem('oxfox_admin_session');
   document.getElementById('login-screen').classList.remove('hidden');
@@ -611,6 +719,7 @@ function showView(name, btn){
   document.querySelectorAll('.sb-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   if(btn)btn.classList.add('active');
+  if(window.innerWidth<=768)closeSidebar();
   const titles={
     dashboard:'Dashboard',analytics:'Traffic & Visitors',
     'products-time':'Product Engagement',products:'Products',discounts:'Discounts'
