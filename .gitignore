@@ -5,3 +5,4 @@ backend/**/__pycache__/
 backend/**/*.pyc
 backend/staticfiles/
 backend/media/
+backend/db.sqlite3
