@@ -135,7 +135,7 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
 @keyframes imgLoop2{0%,45%{opacity:0}50%,95%{opacity:1}100%{opacity:0}}
 .prod-card:hover .pis-img1{animation:imgLoop1 3s 1.5s infinite both}
 .prod-card:hover .pis-img2{animation:imgLoop2 3s 1.5s infinite both}
-.prod-img-wrap{height:220px;background:var(--pk);position:relative;overflow:hidden;border-radius:12px 12px 0 0}
+.prod-img-wrap{aspect-ratio:4/5;height:auto;background:var(--pk);position:relative;overflow:hidden;border-radius:12px 12px 0 0}
 .prod-img-wrap img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease}
 .prod-card:hover .prod-img-wrap img{transform:scale(1.05)}
 .prod-card:hover .prod-img-wrap{background:var(--pk2)}
@@ -1784,7 +1784,7 @@ function showCat(key){
   document.getElementById('cat-pg-title').innerHTML=tp.join(' ')+' <em style="font-style:italic;color:var(--mr)">'+last+'</em>';
   document.getElementById('cat-pg-desc').textContent=c.desc;
   const cpi=document.getElementById('cat-page-imgs');
-  if(cpi){const imgs=c.imgs||[];cpi.innerHTML=imgs.map(src=>'<img class="cpi-img" src="'+src+'" alt="'+c.name+'" onerror="this.style.display=\'none\'">').join('');}
+  if(cpi){cpi.innerHTML='';}
   const _hc='#cat/'+key;_navHash=_hc;if(location.hash!==_hc)location.hash=_hc;
   renderFilters(key);renderCatGrid(key,'All');showPage('category');trackCatView(key);
 }

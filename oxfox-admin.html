@@ -1054,7 +1054,7 @@ function pickImage(inputId,thumbId){
   picker.onchange=function(){
     const file=picker.files[0];
     if(!file){document.body.removeChild(picker);return;}
-    if(file.size>2*1024*1024){aToast('Image too large — please use a file under 2 MB');document.body.removeChild(picker);return;}
+    if(file.size>50*1024*1024){aToast('Image too large — maximum file size is 50 MB');document.body.removeChild(picker);return;}
     const reader=new FileReader();
     reader.onload=function(e){
       const dataUrl=e.target.result;
