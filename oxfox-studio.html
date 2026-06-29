@@ -124,7 +124,7 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
 .cc-img2{opacity:0}
 .cat-card:hover .cc-img1{opacity:0}
 .cat-card:hover .cc-img2{opacity:1}
-.cat-page-imgs{position:absolute;right:clamp(2rem,6vw,5rem);top:50%;transform:translateY(-50%);display:flex;gap:.75rem;pointer-events:none;z-index:1}
+.cat-page-imgs{display:none}
 .cpi-img{width:115px;height:150px;object-fit:cover;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,.14);border:2.5px solid rgba(255,255,255,.85)}
 .cpi-img:nth-child(2){margin-top:24px}.prod-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem}
 .prod-card{background:var(--pk3);border:1.5px solid var(--brd);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .4s var(--ease);display:flex;flex-direction:column}
@@ -1494,7 +1494,7 @@ function applyAdminData(){
 }
 
 const D = {
-  women:{name:'Women',icon:'👩',imgs:['https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=75'],desc:'Silicone molds featuring women-themed designs — fashion figures, accessories, beauty products and more.',filters:['All','Figurines','Fashion & Beauty','Couples'],products:[
+  women:{name:'Women',icon:'👩',imgs:[],desc:'Silicone molds featuring women-themed designs — fashion figures, accessories, beauty products and more.',filters:['All','Figurines','Fashion & Beauty','Couples'],products:[
     {id:'w1',n:'Chanel Perfume Bottle',e:'🌸',p:599,m:599,mat:'Silicone',b:null,f:'Fashion & Beauty',img:'',desc:'Size: 10×6×2 cm'},
     {id:'w2',n:'YSL and D&G Lipstick Set',e:'💄',p:645,m:645,mat:'Silicone',b:null,f:'Fashion & Beauty',img:'',desc:'Size: 8.5×2.5×1.5 cm'},
     {id:'w3',n:'Women\'s Handbags Set',e:'👜',p:835,m:835,mat:'Silicone',b:null,f:'Fashion & Beauty',img:'',desc:'Size: 3.6×3.6×1 cm'},
@@ -1504,7 +1504,7 @@ const D = {
     {id:'w7',n:'Girl Holding Heart Balloons',e:'🎈',p:705,m:705,mat:'Silicone',b:null,f:'Figurines',img:'',desc:'Size: 10×6.5×1.5 cm'},
     {id:'w8',n:'Girl Carrying a Dog',e:'🐶',p:635,m:635,mat:'Silicone',b:null,f:'Figurines',img:'',desc:'Size: 10×7×2 cm'},
   ]},
-  men:{name:'Men',icon:'👨',imgs:['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=75'],desc:'Silicone molds featuring men-themed designs — figures, fashion objects, gym equipment and more.',filters:['All','Figurines','Fashion Objects','Gym & Fitness'],products:[
+  men:{name:'Men',icon:'👨',imgs:[],desc:'Silicone molds featuring men-themed designs — figures, fashion objects, gym equipment and more.',filters:['All','Figurines','Fashion Objects','Gym & Fitness'],products:[
     {id:'mn1',n:'Man in Shirt with Folded Arms',e:'👔',p:670,m:670,mat:'Silicone',b:null,f:'Figurines',img:'',desc:'Size: 9×8×1.2 cm'},
     {id:'mn2',n:'Man in Suit with Folded Arms',e:'🤵',p:670,m:670,mat:'Silicone',b:null,f:'Figurines',img:'',desc:'Size: 9×8×1.2 cm'},
     {id:'mn3',n:'Man in Shirt & Suit with Folded Arms Combo Set',e:'👔',p:735,m:735,mat:'Silicone',b:null,f:'Figurines',img:'',desc:'Size: 7.7×7×1.5 cm'},
@@ -1514,7 +1514,7 @@ const D = {
     {id:'mn7',n:'Genz Objects Set',e:'🎧',p:720,m:720,mat:'Silicone',b:null,f:'Fashion Objects',img:'',desc:'Set contains 6 designs — Headphones, Trophy, Tshirt, Cap, Smartwatch, Slides. Size: 3.6×3.6×1.6 cm'},
     {id:'mn8',n:'Liquour Bottles Set',e:'🍾',p:1199,m:1199,mat:'Silicone',b:null,f:'Fashion Objects',img:'',desc:'Size: 10×4.5×2 cm'},
   ]},
-  animals:{name:'Animals & Teddies',icon:'🐨',imgs:['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=75'],desc:'Adorable animal and teddy bear silicone molds for chocolates and candles.',filters:['All','Teddy Bears','Rabbits'],products:[
+  animals:{name:'Animals & Teddies',icon:'🐨',imgs:[],desc:'Adorable animal and teddy bear silicone molds for chocolates and candles.',filters:['All','Teddy Bears','Rabbits'],products:[
     {id:'an1',n:'Teddy Holding Tulips',e:'🧸',p:587,m:587,mat:'Silicone',b:null,f:'Teddy Bears',img:'',desc:'Size: 8.2×7.8×2.8 cm'},
     {id:'an2',n:'Teddy Bear Pair',e:'🧸',p:595,m:595,mat:'Silicone',b:null,f:'Teddy Bears',img:'',desc:'Size: 7.6×7.4×2 cm'},
     {id:'an3',n:'Teddy Bear with Heart',e:'🧸',p:580,m:580,mat:'Silicone',b:null,f:'Teddy Bears',img:'',desc:'Size: 3.7×3.7×1.7 cm'},
@@ -1523,12 +1523,12 @@ const D = {
     {id:'an6',n:'Baby Rabbit on its Back',e:'🐰',p:595,m:595,mat:'Silicone',b:null,f:'Rabbits',img:'',desc:'Size: 8×4.5×2.8 cm'},
     {id:'an7',n:'Rabbit with Hand Heart Gesture',e:'🐰',p:645,m:645,mat:'Silicone',b:null,f:'Rabbits',img:'',desc:'Size: 6×5×4.5 cm'},
   ]},
-  cakes:{name:'Cakes & Cupcakes',icon:'🎂',imgs:['https://images.unsplash.com/photo-1558636508-e0db3814bd1d?w=600&q=75'],desc:'Beautiful cake and cupcake shaped silicone molds.',filters:['All','Cakes','Cupcakes'],products:[
+  cakes:{name:'Cakes & Cupcakes',icon:'🎂',imgs:[],desc:'Beautiful cake and cupcake shaped silicone molds.',filters:['All','Cakes','Cupcakes'],products:[
     {id:'ck1',n:'Heart Creeper Pattern on Cake with Ribbon Bow',e:'🎂',p:875,m:875,mat:'Silicone',b:null,f:'Cakes',img:'',desc:'Size: 9.5×9×7 cm'},
     {id:'ck2',n:'Wavy Rim Heart Creeper Pattern on Cake with Ribbon Bow',e:'🎂',p:765,m:765,mat:'Silicone',b:null,f:'Cakes',img:'',desc:'Size: 7×7×5 cm'},
     {id:'ck3',n:'Cupcake with Cream',e:'🧁',p:670,m:670,mat:'Silicone',b:null,f:'Cupcakes',img:'',desc:'Size: 7×7×5 cm'},
   ]},
-  rakhi:{name:'Rakhi',icon:'🪢',imgs:['https://images.unsplash.com/photo-1601314912309-2a1e0a02bd4f?w=600&q=75'],desc:'Raksha Bandhan special silicone molds for chocolates, candles and tealight holders.',filters:['All','Chocolate & Candle Molds','Candle Holders','Tealight Holders','Combo Sets'],products:[
+  rakhi:{name:'Rakhi',icon:'🪢',imgs:[],desc:'Raksha Bandhan special silicone molds for chocolates, candles and tealight holders.',filters:['All','Chocolate & Candle Molds','Candle Holders','Tealight Holders','Combo Sets'],products:[
     {id:'rk1',n:'Rakhi',e:'🪢',p:579,m:579,mat:'Silicone',b:null,f:'Chocolate & Candle Molds',img:'',desc:'Size: 14.5×5×1.5 cm'},
     {id:'rk2',n:'Sister Tying Rakhi',e:'🪢',p:675,m:675,mat:'Silicone',b:null,f:'Chocolate & Candle Molds',img:'',desc:'Size: 10.5×9×1.5 cm'},
     {id:'rk3',n:'Rakhi Tying Hands',e:'🤝',p:570,m:570,mat:'Silicone',b:null,f:'Chocolate & Candle Molds',img:'',desc:'Size: 7.6×7.6×2 cm'},
@@ -1539,7 +1539,7 @@ const D = {
     {id:'rk8',n:'Happy Rakhi Candle Holder and Rakhi Tying Hands Candle Combo Set',e:'🕯️',p:899,m:899,mat:'Silicone',b:null,f:'Combo Sets',img:'',desc:'Sizes: 11.5×10.5×2.5 cm and 7.6×7.6×2 cm'},
     {id:'rk9',n:'Happy Rakhi Candle Holder',e:'🕯️',p:685,m:685,mat:'Silicone',b:null,f:'Candle Holders',img:'',desc:'Size: 11.5×10.5×2.5 cm'},
   ]},
-  diwali:{name:'Diwali',icon:'🪔',imgs:['https://images.unsplash.com/photo-1574126154517-d1e0d89ef734?w=600&q=75'],desc:'Diwali themed silicone molds — crackers, diyas, mandalas and festive shapes.',filters:['All','Crackers','Festive Shapes','Mandalas'],products:[
+  diwali:{name:'Diwali',icon:'🪔',imgs:[],desc:'Diwali themed silicone molds — crackers, diyas, mandalas and festive shapes.',filters:['All','Crackers','Festive Shapes','Mandalas'],products:[
     {id:'dw1',n:'Anaar Cracker',e:'🎆',p:725,m:725,mat:'Silicone',b:null,f:'Crackers',img:'',desc:'Size: 9×9×7.3 cm'},
     {id:'dw2',n:'Sutli Bomb',e:'💣',p:565,m:565,mat:'Silicone',b:null,f:'Crackers',img:'',desc:'Size: 4×4×4.3 cm'},
     {id:'dw3',n:'Chakri Cracker',e:'🌀',p:535,m:535,mat:'Silicone',b:null,f:'Crackers',img:'',desc:'Size: 7.5×7.5×1 cm'},
@@ -1549,12 +1549,12 @@ const D = {
     {id:'dw7',n:'Bonfire Mandala Base',e:'🪔',p:495,m:495,mat:'Silicone',b:null,f:'Mandalas',img:'',desc:'Size: 8×8×1 cm'},
     {id:'dw8',n:'Mandala Base',e:'🪔',p:545,m:545,mat:'Silicone',b:null,f:'Mandalas',img:'',desc:'Size: 8.5×8.5×1.5 cm'},
   ]},
-  eidramadan:{name:'Eid / Ramadan',icon:'🌙',imgs:['https://images.unsplash.com/photo-1584543427661-7e5c0f9b99ab?w=600&q=75'],desc:'Islamic festival silicone molds for Eid and Ramadan celebrations.',filters:['All','Mosques','Lanterns','Slabs'],products:[
+  eidramadan:{name:'Eid / Ramadan',icon:'🌙',imgs:[],desc:'Islamic festival silicone molds for Eid and Ramadan celebrations.',filters:['All','Mosques','Lanterns','Slabs'],products:[
     {id:'er1',n:'Miniature Mosques',e:'🕌',p:950,m:950,mat:'Silicone',b:null,f:'Mosques',img:'',desc:'Size: 3.5×3.5×2 cm'},
     {id:'er2',n:'Islamic Patterned Lanterns',e:'🏮',p:685,m:685,mat:'Silicone',b:null,f:'Lanterns',img:'',desc:'Size: 9.8×5.8×1 cm'},
     {id:'er3',n:'Islamic Patterned Slab',e:'✨',p:645,m:645,mat:'Silicone',b:null,f:'Slabs',img:'',desc:'Size: 15×8×1 cm'},
   ]},
-  jars:{name:'Jars',icon:'🫙',imgs:['https://images.unsplash.com/photo-1601049676869-702ea24cfd58?w=600&q=75'],desc:'Decorative jar silicone molds for candles, concrete, and resin — various shapes and sizes.',filters:['All','Plain Jars','Shaped Jars','Jars with Lid'],products:[
+  jars:{name:'Jars',icon:'🫙',imgs:[],desc:'Decorative jar silicone molds for candles, concrete, and resin — various shapes and sizes.',filters:['All','Plain Jars','Shaped Jars','Jars with Lid'],products:[
     {id:'jr1',n:'Zigzag Jar with Outer Support - Small',e:'🫙',p:870,m:870,mat:'Silicone',b:null,f:'Plain Jars',img:'',desc:'Size: 9×6.5 cm'},
     {id:'jr2',n:'Zigzag Jar with Outer Support - Large',e:'🫙',p:1795,m:1795,mat:'Silicone',b:null,f:'Plain Jars',img:'',desc:'Size: 15×9 cm'},
     {id:'jr3',n:'Heart Shaped Jar',e:'❤️',p:735,m:735,mat:'Silicone',b:null,f:'Shaped Jars',img:'',desc:'Size: 9×8.5×4 cm'},
@@ -1564,7 +1564,7 @@ const D = {
     {id:'jr7',n:'Plain Jar with Lid',e:'🫙',p:1025,m:1025,mat:'Silicone',b:null,f:'Jars with Lid',img:'',desc:'Size: 9×9×7 cm'},
     {id:'jr8',n:'Vase Jar',e:'🏺',p:1028,m:1028,mat:'Silicone',b:null,f:'Shaped Jars',img:'',desc:'Size: 9.5×9.5×9.2 cm'},
   ]},
-  decor:{name:'Decor',icon:'🏠',imgs:['https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&q=75'],desc:'Home and office decor silicone molds — organizers, lamp stands, bookends, clocks and more.',filters:['All','Office Accessories','Lighting','Clocks','Bookends'],products:[
+  decor:{name:'Decor',icon:'🏠',imgs:[],desc:'Home and office decor silicone molds — organizers, lamp stands, bookends, clocks and more.',filters:['All','Office Accessories','Lighting','Clocks','Bookends'],products:[
     {id:'dc1',n:'Desk Organizer 1',e:'✏️',p:950,m:950,mat:'Silicone',b:null,f:'Office Accessories',img:'',desc:'Size: 21×5×2.5 cm'},
     {id:'dc2',n:'Desk Organizer 2',e:'✏️',p:950,m:950,mat:'Silicone',b:null,f:'Office Accessories',img:'',desc:'Size: 20×8×2.5 cm'},
     {id:'dc3',n:'Arch Table Lamp Stand',e:'💡',p:920,m:920,mat:'Silicone',b:null,f:'Lighting',img:'',desc:'Size: 12×8×8.5 cm'},
