@@ -39,9 +39,10 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.filter(is_active=True).select_related('category').prefetch_related('images')
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name', 'description', 'material', 'filter_tag']
+    search_fields = ['name', 'description', 'material', 'filter_tag', 'product_id']
     ordering_fields = ['price', 'mrp', 'created_at', 'name']
     ordering = ['category__order', 'name']
+    lookup_field = 'product_id'
 
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:

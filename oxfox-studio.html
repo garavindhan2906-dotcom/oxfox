@@ -404,7 +404,6 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
   .tcf-card{min-height:300px;padding:2.5rem 2rem}
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
   .prod-grid{grid-template-columns:repeat(3,1fr);gap:1rem}
-  .prod-img-wrap{height:180px}
   .process-grid{grid-template-columns:1fr;gap:1.25rem}
   .process-grid::before{display:none}
   .testi-grid{grid-template-columns:repeat(2,1fr);gap:1rem}
@@ -447,7 +446,6 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
   .btn-primary,.btn-outline{width:100%;text-align:center;padding:14px 18px}
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
   .prod-grid{grid-template-columns:repeat(2,1fr);gap:.75rem}
-  .prod-img-wrap{height:160px}
   .prod-body{padding:1rem}
   .prod-name{font-size:1rem}
   .testi-grid{grid-template-columns:1fr;gap:.875rem}
@@ -491,7 +489,6 @@ a,button{transition:all .3s cubic-bezier(.22,1,.36,1)}
   .hero-cat-card{padding:.75rem}
   .cat-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
   .prod-grid{grid-template-columns:repeat(2,1fr);gap:.5rem}
-  .prod-img-wrap{height:130px}
   .prod-body{padding:.75rem}
   .section{padding:1.5rem 1rem}
   .cat-page-hero,.form-page-hdr{padding:4rem 1rem 1.25rem}
@@ -1288,17 +1285,24 @@ async function loadApiProducts() {
   }
   const data = await apiFetch('/products/?page_size=200');
   if (!data || !data.results) return;
+  const apiIds = new Set();
   data.results.forEach(p => {
     const key = p.category_key;
     if (!D[key]) return;
-    const exists = D[key].products.find(x => x.id === p.product_id);
-    if (exists) return;
-    D[key].products.push({
+    apiIds.add(p.product_id);
+    const mapped = {
       id: p.product_id, n: p.name, e: p.emoji, p: p.price, m: p.mrp,
       mat: p.material, b: p.badge || null, f: p.filter_tag,
       img: p.primary_image, imgs: p.images?.map(i => i.url),
       desc: p.description, discount: p.discount || 0,
-    });
+    };
+    const idx = D[key].products.findIndex(x => x.id === p.product_id);
+    if (idx >= 0) D[key].products[idx] = mapped;
+    else D[key].products.push(mapped);
+  });
+  // Remove products that were soft-deleted in API (is_active=false)
+  Object.keys(D).forEach(key => {
+    D[key].products = D[key].products.filter(p => !p.id.startsWith('adm-') || apiIds.has(p.id));
   });
   // Re-render category grid from D (shows both built-in and API categories)
   const catGrid = document.getElementById('main-cat-grid');

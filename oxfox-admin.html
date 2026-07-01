@@ -1176,7 +1176,7 @@ function openEditModal(id){
   document.getElementById('edit-modal').classList.add('open');
 }
 function closeEditModal(){document.getElementById('edit-modal').classList.remove('open');}
-function saveEditProduct(){
+async function saveEditProduct(){
   const id=document.getElementById('ep-id').value;
   const origCat=document.getElementById('ep-cat-key').value;
   const newCat=document.getElementById('ep-cat').value;
@@ -1227,6 +1227,18 @@ function saveEditProduct(){
     if(si>=0){snap[si]={...snap[si],...updated,catKey:newCat};try{localStorage.setItem('oxfox_all_products',JSON.stringify(snap));}catch(e){}}
   }
   try{const pd=getProductDiscounts();if(tiers.length)pd[id]=tiers;else delete pd[id];localStorage.setItem('oxfox_product_discounts',JSON.stringify(pd));}catch(e){}
+  // Sync to API so all browser profiles see the update
+  try{
+    await loadApiCategories();
+    const catObj=_apiCats.find(c=>c.key===newCat);
+    const token=await ensureAdminToken();
+    if(token&&catObj){
+      const payload={category:catObj.id,name,emoji,price,mrp,material:mat,filter_tag:filter,description:desc,images:imgs};
+      if(badge)payload.badge=badge;
+      const r=await fetch(ADMIN_API+'/products/'+encodeURIComponent(id)+'/',{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)});
+      if(r.status===401){localStorage.removeItem('oxfox_api_token');_apiToken=null;}
+    }
+  }catch(e){}
   aToast('Product updated!');
   closeEditModal();
   renderProducts();
@@ -1242,7 +1254,7 @@ function confirmDelete(id,name){
   document.getElementById('confirm-modal').classList.add('open');
 }
 function closeConfirm(){document.getElementById('confirm-modal').classList.remove('open');}
-function doDelete(id){
+async function doDelete(id){
   // Remove from admin products
   const custom=getAdminP();
   Object.keys(custom).forEach(k=>{custom[k]=custom[k].filter(p=>p.id!==id);});
@@ -1250,6 +1262,14 @@ function doDelete(id){
   // Also add to deleted list (to hide built-in products)
   const deleted=getDeletedP();
   if(!deleted.includes(id)){deleted.push(id);localStorage.setItem('oxfox_deleted_products',JSON.stringify(deleted));}
+  // Soft-delete in API so all browser profiles stop seeing this product
+  try{
+    const token=await ensureAdminToken();
+    if(token){
+      const r=await fetch(ADMIN_API+'/products/'+encodeURIComponent(id)+'/',{method:'PATCH',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({is_active:false})});
+      if(r.status===401){localStorage.removeItem('oxfox_api_token');_apiToken=null;}
+    }
+  }catch(e){}
   aToast('Product deleted from store');
   renderProducts();
 }
