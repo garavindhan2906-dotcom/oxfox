@@ -1054,15 +1054,25 @@ function pickImage(inputId,thumbId){
   picker.onchange=function(){
     const file=picker.files[0];
     if(!file){document.body.removeChild(picker);return;}
-    if(file.size>50*1024*1024){aToast('Image too large — maximum file size is 50 MB');document.body.removeChild(picker);return;}
+    if(file.size>50*1024*1024){aToast('Image too large — maximum 50 MB');document.body.removeChild(picker);return;}
     const reader=new FileReader();
     reader.onload=function(e){
-      const dataUrl=e.target.result;
-      const inp=document.getElementById(inputId);
-      if(inp)inp.value=dataUrl;
-      const thumb=document.getElementById(thumbId);
-      if(thumb){thumb.src=dataUrl;thumb.style.display='block';}
-      document.body.removeChild(picker);
+      const img=new Image();
+      img.onload=function(){
+        const MAX=1200;
+        let w=img.width,h=img.height;
+        if(w>MAX||h>MAX){if(w>h){h=Math.round(h*MAX/w);w=MAX;}else{w=Math.round(w*MAX/h);h=MAX;}}
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const dataUrl=canvas.toDataURL('image/jpeg',0.78);
+        const inp=document.getElementById(inputId);
+        if(inp)inp.value=dataUrl;
+        const thumb=document.getElementById(thumbId);
+        if(thumb){thumb.src=dataUrl;thumb.style.display='block';}
+        document.body.removeChild(picker);
+      };
+      img.src=e.target.result;
     };
     reader.readAsDataURL(file);
   };
@@ -1188,13 +1198,21 @@ function saveEditProduct(){
   const isBuiltIn=!id.startsWith('adm-');
   const updated={id,n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
   if(imgs.length>1)updated.imgs=imgs;
+  function _trySave(key,val){
+    try{localStorage.setItem(key,JSON.stringify(val));return true;}
+    catch(e){
+      // Storage full — evict snapshot cache and retry once
+      localStorage.removeItem('oxfox_all_products');
+      localStorage.removeItem('oxfox_analytics');
+      try{localStorage.setItem(key,JSON.stringify(val));return true;}
+      catch(e2){return false;}
+    }
+  }
   if(isBuiltIn){
     const ov=getProductOverrides();
     ov[id]={n:name,e:emoji,p:price,m:mrp,mat,b:badge,f:filter,img,desc};
     if(imgs.length>1)ov[id].imgs=imgs;
-    try{localStorage.setItem('oxfox_product_overrides',JSON.stringify(ov));}
-    catch(err){aToast('Save failed: storage full. Use smaller images or clear browser data.');return;}
-    // Update snapshot so table refreshes immediately
+    if(!_trySave('oxfox_product_overrides',ov)){aToast('Save failed: images too large. Try browsing smaller photos.','red');return;}
     const snap=getProductsSnapshot();
     const si=snap.findIndex(p=>p.id===id);
     if(si>=0){snap[si]={...snap[si],...updated};try{localStorage.setItem('oxfox_all_products',JSON.stringify(snap));}catch(e){}}
@@ -1203,9 +1221,7 @@ function saveEditProduct(){
     if(custom[origCat])custom[origCat]=custom[origCat].filter(p=>p.id!==id);
     if(!custom[newCat])custom[newCat]=[];
     custom[newCat].push(updated);
-    try{localStorage.setItem('oxfox_admin_products',JSON.stringify(custom));}
-    catch(err){aToast('Save failed: storage full. Use smaller images or clear browser data.');return;}
-    // Update snapshot for custom product too
+    if(!_trySave('oxfox_admin_products',custom)){aToast('Save failed: images too large. Try browsing smaller photos.','red');return;}
     const snap=getProductsSnapshot();
     const si=snap.findIndex(p=>p.id===id);
     if(si>=0){snap[si]={...snap[si],...updated,catKey:newCat};try{localStorage.setItem('oxfox_all_products',JSON.stringify(snap));}catch(e){}}
