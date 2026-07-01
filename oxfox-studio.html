@@ -1326,7 +1326,7 @@ async function loadApiProductDiscounts() {
   });
   if (Object.keys(pd).length) {
     const existing = getProductDiscounts();
-    const merged = { ...pd, ...existing };
+    const merged = { ...existing, ...pd };
     localStorage.setItem('oxfox_product_discounts', JSON.stringify(merged));
   }
 }
@@ -2020,7 +2020,7 @@ function updateBadge(){
 function computeCartRows(){
   return cart.map(item=>{
     const discPct=getApplicableTier(item.id,item.qty);
-    const unitPrice=discPct>0?Math.round(item.m*(1-discPct/100)):item.m;
+    const unitPrice=discPct>0?Math.round(item.m*(1-discPct/100)):item.p;
     return {...item,discPct,unitPrice,lineTotal:unitPrice*item.qty};
   });
 }
@@ -2100,6 +2100,8 @@ function renderCheckout(){
     +'</div></div>';
 }
 async function placeOrder(){
+  const _sess=(() => { try { return JSON.parse(localStorage.getItem('oxfox_session')); } catch(e) { return null; } })();
+  if(!_sess||!_sess.token){toast('Please sign in to place your order','red');showPage('login');return;}
   const reqd=['co-fn','co-ln','co-em','co-ph','co-ad','co-ct','co-pin'];
   for(const id of reqd){if(!document.getElementById(id)?.value.trim()){toast('Please fill all required fields');return;}}
   const rows=window._checkoutRows||computeCartRows();
@@ -2122,7 +2124,8 @@ async function placeOrder(){
     ...(spinRew?{spin_reward:spinRew.label}:{}),
   };
   const result=await apiFetch('/orders/',{method:'POST',body:JSON.stringify(payload)});
-  const oid=result?.order_number||('OX'+Date.now().toString().slice(-8));
+  if(!result||!result.order_number){toast('Order failed — please try again or contact support','red');return;}
+  const oid=result.order_number;
   if(spinRew){try{localStorage.setItem('oxfox_spin_reward',JSON.stringify({...spinRew,used:true}));localStorage.removeItem('oxfox_first_email_login');}catch(e){}}
   cart=[];updateBadge();
   document.getElementById('checkout-inner').innerHTML='<div class="success-wrap"><div style="font-size:3.5rem;margin-bottom:1.5rem">&#x2705;</div><h1 class="success-title">Order Placed!</h1><p class="success-sub">Thank you! We\'ll confirm your order via WhatsApp within a few hours.</p><div class="order-id-box"><div class="oid-label">Order ID</div><div class="oid-num">'+oid+'</div></div><button class="btn-primary" onclick="goHome()">Back to Home</button></div>';
