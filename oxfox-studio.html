@@ -1841,7 +1841,6 @@ function getImgUrls(src,fallback){
   return urls;
 }
 function imgHTML(p,h,catKey){
-  const ht=h||200;
   const rawFirst=p.imgs?p.imgs[0]:p.img;
   let rawSecond=p.img2||(p.imgs&&p.imgs[1])||'';
   if(!rawSecond&&catKey&&D[catKey]){
@@ -1857,7 +1856,8 @@ function imgHTML(p,h,catKey){
     const fb=rest.length?' data-fallbacks=\''+JSON.stringify(rest).replace(/'/g,'&#39;')+'\' onerror="imgFallback(this)"':' onerror="this.onerror=null;this.style.display=\'none\'"';
     return '<img class="'+cls+'" src="'+src+'" alt="'+p.n+'" loading="lazy"'+fb+'>';
   }
-  return '<div class="prod-img-wrap" style="height:'+ht+'px">'
+  const heightStyle=h!=null?' style="height:'+h+'px"':'';
+  return '<div class="prod-img-wrap"'+heightStyle+'>'
     +mkImg(urls1,'pis-img1')+mkImg(urls2,'pis-img2')
     +'<div class="prod-placeholder"'+(rawFirst?' style="display:none"':'')+'><div class="prod-placeholder-ico">'+p.e+'</div><div class="prod-placeholder-txt">'+p.id+'</div></div>'
     +'</div>';
