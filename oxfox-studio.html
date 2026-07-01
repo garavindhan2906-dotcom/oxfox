@@ -1319,6 +1319,8 @@ async function loadApiProducts() {
   }
   // Refresh featured picks to include any new API categories
   if (document.querySelector('[data-page="home"].active')) renderFeatured();
+  // Re-render current category page if one is open so new API products appear
+  if (currentCatKey && currentCatKey !== 'new' && D[currentCatKey]) showCat(currentCatKey);
 }
 
 async function loadApiProductDiscounts() {
