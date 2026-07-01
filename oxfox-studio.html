@@ -1290,13 +1290,17 @@ async function loadApiProducts() {
     const key = p.category_key;
     if (!D[key]) return;
     apiIds.add(p.product_id);
+    const idx = D[key].products.findIndex(x => x.id === p.product_id);
+    const prev = idx >= 0 ? D[key].products[idx] : null;
     const mapped = {
       id: p.product_id, n: p.name, e: p.emoji, p: p.price, m: p.mrp,
       mat: p.material, b: p.badge || null, f: p.filter_tag,
-      img: p.primary_image, imgs: p.images?.length ? p.images.map(i => i.url) : undefined,
+      // List API has no images — preserve hardcoded img so built-in Unsplash URLs survive
+      img: (prev && prev.img) || '',
+      // Preserve hardcoded imgs array (list API no longer returns images)
+      imgs: (prev && prev.imgs) || undefined,
       desc: p.description, discount: p.discount || 0,
     };
-    const idx = D[key].products.findIndex(x => x.id === p.product_id);
     if (idx >= 0) D[key].products[idx] = mapped;
     else D[key].products.push(mapped);
   });
