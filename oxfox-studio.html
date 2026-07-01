@@ -1323,8 +1323,9 @@ async function loadApiProducts() {
   }
   // Refresh featured picks to include any new API categories
   if (document.querySelector('[data-page="home"].active')) renderFeatured();
-  // Re-render current category page if one is open so new API products appear
-  if (currentCatKey && currentCatKey !== 'new' && D[currentCatKey]) showCat(currentCatKey);
+  // Re-render current category page only if still on the category page
+  const _catPageActive = document.getElementById('page-cat') && document.getElementById('page-cat').classList.contains('active');
+  if (_catPageActive && currentCatKey && currentCatKey !== 'new' && D[currentCatKey]) showCat(currentCatKey);
 }
 
 async function loadApiProductDiscounts() {
