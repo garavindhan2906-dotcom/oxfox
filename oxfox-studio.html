@@ -1293,7 +1293,7 @@ async function loadApiProducts() {
     const mapped = {
       id: p.product_id, n: p.name, e: p.emoji, p: p.price, m: p.mrp,
       mat: p.material, b: p.badge || null, f: p.filter_tag,
-      img: p.primary_image, imgs: p.images?.map(i => i.url),
+      img: p.primary_image, imgs: p.images?.length ? p.images.map(i => i.url) : undefined,
       desc: p.description, discount: p.discount || 0,
     };
     const idx = D[key].products.findIndex(x => x.id === p.product_id);
@@ -1905,6 +1905,8 @@ function showProduct(key,id){
   if(!p){toast('Prod not found: '+id+' ('+( cat.products.length)+' in '+key+')');showCat(key);return;}
   trackProductView(id,p.n);
   qty=1;
+  // Fetch full images for this product if not already loaded (list API omits images for size)
+  if(!p.imgs){apiFetch('/products/'+encodeURIComponent(id)+'/').then(d=>{if(d&&d.images){p.imgs=d.images.map(i=>i.url);showProduct(key,id);}});}
   const imgs=p.imgs&&p.imgs.length>0?p.imgs:[p.img,p.img2].filter(Boolean);
   const finalProdPrice=p.discount>0?Math.round(p.m*(1-p.discount/100)):p.p;
   const disc=p.discount>0?p.discount:(p.m>p.p?Math.round((p.m-p.p)/p.m*100):0);

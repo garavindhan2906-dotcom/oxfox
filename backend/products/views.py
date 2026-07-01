@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from .models import Category, Product, ProductImage, Banner
 from .serializers import (
     CategorySerializer, CategoryListSerializer,
-    ProductSerializer, ProductWriteSerializer, BannerSerializer,
+    ProductSerializer, ProductDetailSerializer, ProductWriteSerializer, BannerSerializer,
 )
 
 
@@ -47,6 +47,8 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action in ['create', 'update', 'partial_update']:
             return ProductWriteSerializer
+        if self.action == 'retrieve':
+            return ProductDetailSerializer
         return ProductSerializer
 
     def get_permissions(self):

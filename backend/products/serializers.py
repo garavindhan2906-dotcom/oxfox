@@ -9,7 +9,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    images = ProductImageSerializer(many=True, read_only=True)
+    """Lightweight list serializer — no full images array to keep response small."""
     primary_image = serializers.ReadOnlyField()
     final_price = serializers.ReadOnlyField()
     category_key = serializers.CharField(source='category.key', read_only=True)
@@ -21,10 +21,18 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'product_id', 'category', 'category_key', 'category_name',
             'name', 'emoji', 'price', 'mrp', 'final_price', 'material',
             'badge', 'filter_tag', 'description', 'discount',
-            'primary_image', 'images', 'is_active', 'is_custom',
+            'primary_image', 'is_active', 'is_custom',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
+
+
+class ProductDetailSerializer(ProductSerializer):
+    """Full serializer with all images — used for single product retrieve."""
+    images = ProductImageSerializer(many=True, read_only=True)
+
+    class Meta(ProductSerializer.Meta):
+        fields = ProductSerializer.Meta.fields + ['images']
 
 
 class ProductWriteSerializer(serializers.ModelSerializer):
